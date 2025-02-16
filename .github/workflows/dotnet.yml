@@ -21,13 +21,13 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Check dir
-      working-directory: ./BackendSoulBeats.API
+      working-directory: BackendSoulBeats.API
       run: ls -la && date
     - name: Go backend
-      working-directory: ./BackendSoulBeats.API
+      working-directory: BackendSoulBeats.API
       run: cd BackendSoulBeats
     - name: Go to API
-      run: cd ./BackendSoulBeats.API
+      run: cd BackendSoulBeats.API
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
