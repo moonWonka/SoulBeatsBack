@@ -21,7 +21,9 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Check dir
-      run: ls -la
+      run: ls -la && date
+    - name: Go backend
+      run: cd .\BackendSoulBeats\
     - name: Go to API
       run: cd .\BackendSoulBeats.API\ 
     - name: Restore dependencies
