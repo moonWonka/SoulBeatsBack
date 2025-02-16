@@ -24,8 +24,12 @@ jobs:
       run: ls -la && date
     - name: Go backend
       run: cd BackendSoulBeats
+    - name: Check dir
+      run: ls -la && date
     - name: Go to API
       run: cd ./BackendSoulBeats.API
+    - name: Check dir
+      run: ls -la && date
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
