@@ -23,9 +23,9 @@ jobs:
     - name: Check dir
       run: ls -la && date
     - name: Go backend
-      run: cd .\BackendSoulBeats\
+      run: cd BackendSoulBeats
     - name: Go to API
-      run: cd .\BackendSoulBeats.API\ 
+      run: cd BackendSoulBeats.API
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
