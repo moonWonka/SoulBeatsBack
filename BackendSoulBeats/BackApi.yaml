@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: BackendSoulBeats
+  version: "1.0.0"
+  description: API que permite autenticar o registrar usuarios mediante proveedores sociales como Gmail o Facebook.
+servers:
+  - url: https://api.tu-dominio.com
+tags:
+  - name: Auth
+    description: Endpoints para autenticación y registro de usuarios.
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Autenticación con proveedores sociales
+      description: |
+        Este endpoint recibe el código de autorización obtenido de un proveedor social (por ejemplo, Gmail o Facebook) tras el proceso de OAuth.
+        Se reenvía este código al servicio del proveedor para validar la autenticación. Si es exitoso, se crea o autentica al usuario en el sistema
+        y se devuelve un token de acceso.
+      requestBody:
+        description: Datos necesarios para la autenticación social.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - provider
+                - authCode
+              properties:
+                provider:
+                  type: string
+                  description: Proveedor social a utilizar.
+                  enum: [gmail, facebook]
+                  example: gmail
+                authCode:
+                  type: string
+                  description: Código de autorización recibido del proveedor tras el login.
+                  example: "abc123def456"
+      responses:
+        "200":
+          description: Autenticación exitosa. Se devuelve el token generado y los datos del usuario.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BaseResponse"
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: Token JWT generado tras la autenticación.
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: "123e4567-e89b-12d3-a456-426614174000"
+                          email:
+                            type: string
+                            format: email
+                            example: "usuario@example.com"
+                          provider:
+                            type: string
+                            example: gmail
+        "400":
+          description: Solicitud mal formada o datos inválidos.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BaseResponse"
+                  - type: object
+                    properties:
+                      statusCode:
+                        type: integer
+                        example: 400
+                      description:
+                        type: string
+                        example: "Solicitud mal formada o datos inválidos."
+                      userFriendly:
+                        type: string
+                        example: "Por favor, revise la información enviada."
+        "401":
+          description: Código de autorización inválido, expirado o no autorizado.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BaseResponse"
+                  - type: object
+                    properties:
+                      statusCode:
+                        type: integer
+                        example: 401
+                      description:
+                        type: string
+                        example: "No autorizado. Código de autorización inválido o expirado."
+                      userFriendly:
+                        type: string
+                        example: "No está autorizado a realizar esta acción."
+        "500":
+          description: Error interno del servidor o en la integración con el proveedor.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BaseResponse"
+                  - type: object
+                    properties:
+                      statusCode:
+                        type: integer
+                        example: 500
+                      description:
+                        type: string
+                        example: "Error interno del servidor."
+                      userFriendly:
+                        type: string
+                        example: "Ha ocurrido un error interno. Intente más tarde."
+components:
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        description:
+          type: string
+          example: "Operación exitosa"
+        userFriendly:
+          type: string
+          example: "La operación se realizó con éxito"
+        moreInformation:
+          type: string
+          example: "Para más detalles, consulte la documentación o contacte soporte."
