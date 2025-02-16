@@ -4,7 +4,7 @@ info:
   version: "1.0.0"
   description: API que permite autenticar o registrar usuarios mediante proveedores sociales como Gmail o Facebook.
 servers:
-  - url: https://api.tu-dominio.com
+  - url: https://api.dominio.com
 tags:
   - name: Auth
     description: Endpoints para autenticación y registro de usuarios.
