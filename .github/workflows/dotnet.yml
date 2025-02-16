@@ -22,7 +22,6 @@ jobs:
           dotnet-version: 7.0.x
 
       - name: Check directory
-        working-directory: BackendSoulBeats.API
         run: ls -la && date
 
       - name: Restore dependencies
