@@ -1,0 +1,56 @@
+name: Deploy SoulBeats Backend to Azure
+
+env:
+  AZURE_WEBAPP_NAME: backSoulBeats    # Nombre exacto de tu Azure App Service
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'  # Directorio de publicación
+  DOTNET_VERSION: '8.0.x'               # Versión de .NET que usas
+
+on:
+  push:
+    branches: 
+      - main   # Si tu rama principal es main, si es master cambialo
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set up dependency caching for faster builds
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Build the project
+        run: dotnet build --configuration Release
+
+      - name: Publish the project
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
