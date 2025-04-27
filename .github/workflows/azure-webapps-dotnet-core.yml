@@ -8,7 +8,7 @@ env:
 on:
   push:
     branches: 
-      - main   # Si tu rama principal es main, si es master cambialo
+      - master   # Si tu rama principal es main, si es master cambialo
   workflow_dispatch:
 
 permissions:
