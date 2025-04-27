@@ -76,9 +76,20 @@ namespace BackendSoulBeats.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                });
+            }
+            else
+            {
+                // Para entornos no Development (Producción, Staging, etc.)
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    //se puede configurar la descripción igual que arriba
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 });
             }

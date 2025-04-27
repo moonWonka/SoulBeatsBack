@@ -8,7 +8,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/auth")]
+    [Route("auth")]
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -27,5 +27,14 @@ namespace BackendSoulBeats.API.Application.V1.ViewModel.Common
         /// </summary>
         [JsonPropertyName("moreInformation")]
         public string MoreInformation { get; set; }
+
+
+        public BaseResponse()
+        {
+            StatusCode = 200; // Código de estado predeterminado (OK).
+            Description = string.Empty; // Descripción inicial vacía.
+            UserFriendly = string.Empty; // Mensaje amigable inicial vacío.
+            MoreInformation = string.Empty; // Información adicional inicial vacía.
+        }
     }
 }
