@@ -1,14 +1,14 @@
 name: Deploy SoulBeats Backend to Azure
 
 env:
-  AZURE_WEBAPP_NAME: backSoulBeats    # Nombre exacto de tu Azure App Service
-  AZURE_WEBAPP_PACKAGE_PATH: './publish'  # Directorio de publicación
-  DOTNET_VERSION: '8.0.x'               # Versión de .NET que usas
+  AZURE_WEBAPP_NAME: backSoulBeats
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'
+  DOTNET_VERSION: '8.0.x'
 
 on:
   push:
-    branches: 
-      - master   # Si tu rama principal es main, si es master cambialo
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
@@ -44,10 +44,7 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
