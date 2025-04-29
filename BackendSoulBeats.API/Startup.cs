@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;    // Para AddVersionedApiExplorer
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 namespace BackendSoulBeats.API
 {
@@ -49,6 +51,12 @@ namespace BackendSoulBeats.API
 
             // Registro de repositorios (acceso a datos)
             ConfigureRepositoryDependencies(services);
+
+            // Inicializa Firebase Admin SDK
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile("Secrets/serviceAccountKey.json")
+            });
         }
 
         /// <summary>
