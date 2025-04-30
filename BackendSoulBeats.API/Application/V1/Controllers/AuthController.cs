@@ -33,8 +33,9 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> PostRegister([FromBody] PostAuthRequest request)
+        public async Task<IActionResult> PostRegister([FromRoute] PostAuthRequest request,[FromRoute] HeaderViewModel header)
         {
+            if(header != null) request.Header = header;
             // Puedes obtener el UID del usuario autenticado así:
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
