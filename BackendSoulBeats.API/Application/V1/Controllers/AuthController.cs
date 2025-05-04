@@ -3,14 +3,12 @@ using BackendSoulBeats.API.Application.V1.Command.PostAuth;
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization; // Agrega este using
 
 namespace BackendSoulBeats.API.Application.V1.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("auth")]
-    [Authorize(Policy = "SoloUsuariosConEmail")] // Aplica la política personalizada
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -33,11 +31,9 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> PostRegister([FromBody] PostAuthRequest request)
+        public async Task<IActionResult> PostRegister([FromRoute] PostAuthRequest request,[FromRoute] HeaderViewModel header)
         {
-            // Puedes obtener el UID del usuario autenticado así:
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
+            if(header != null) request.Header = header;
             // Se envía la solicitud al handler a través de MediatR
             var response = await _mediator.Send(request);
 

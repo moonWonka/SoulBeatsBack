@@ -1,5 +1,6 @@
 using BackendSoulBeats.API.Configuration;
 using BackendSoulBeats.API.Middleware;
+using Microsoft.OpenApi.Models;
 
 namespace BackendSoulBeats.API
 {
@@ -16,13 +17,44 @@ namespace BackendSoulBeats.API
         {
             // Registro de controladores y Swagger
             services.AddControllers();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SoulBeats API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
             // Configuración de políticas de autorización
             services.AddAuthorization(options =>
             {
+                // Política para usuarios que tienen un email registrado
                 options.AddPolicy("SoloUsuariosConEmail", policy =>
                     policy.RequireClaim(System.Security.Claims.ClaimTypes.Email));
+
+                // Política para usuarios con rol de administrador
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireClaim("role", "admin"));
             });
 
             // Otros servicios...
