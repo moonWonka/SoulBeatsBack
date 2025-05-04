@@ -1,13 +1,6 @@
-using System.Reflection;
-using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;               // Para ApiVersion
-using Microsoft.AspNetCore.Mvc.Versioning;     // Para AddApiVersioning
-using Microsoft.AspNetCore.Mvc.ApiExplorer;    // Para AddVersionedApiExplorer
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using BackendSoulBeats.API.Configuration;
+using BackendSoulBeats.API.Middleware;
+using Microsoft.OpenApi.Models;
 
 namespace BackendSoulBeats.API
 {
@@ -24,31 +17,52 @@ namespace BackendSoulBeats.API
         {
             // Registro de controladores y Swagger
             services.AddControllers();
-            services.AddSwaggerGen();
-
-            // Registro de MediatR (buscando los handlers en el assembly)
-            services.AddMediatR(Assembly.GetExecutingAssembly());
-
-            // Configuración del versionado de la API
-            services.AddApiVersioning(options =>
+            services.AddSwaggerGen(c =>
             {
-                options.DefaultApiVersion = new ApiVersion(1, 0); // Versión por defecto 1.0
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ReportApiVersions = true;
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SoulBeats API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
-            // Registro del explorador de versiones para Swagger
-            services.AddVersionedApiExplorer(options =>
+            // Configuración de políticas de autorización
+            services.AddAuthorization(options =>
             {
-                options.GroupNameFormat = "'v'VVV";  // Ejemplo: v1
-                options.SubstituteApiVersionInUrl = true;
+                // Política para usuarios que tienen un email registrado
+                options.AddPolicy("SoloUsuariosConEmail", policy =>
+                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Email));
+
+                // Política para usuarios con rol de administrador
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireClaim("role", "admin"));
             });
 
-            // Registro de otros servicios (lógica de negocio)
+            // Otros servicios...
             ConfigureServicesDependencies(services);
-
-            // Registro de repositorios (acceso a datos)
             ConfigureRepositoryDependencies(services);
+
+            // Inicializa Firebase Admin SDK
+            FirebaseInitializer.Initialize();
         }
 
         /// <summary>
@@ -76,7 +90,6 @@ namespace BackendSoulBeats.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
@@ -85,20 +98,18 @@ namespace BackendSoulBeats.API
             }
             else
             {
-                // Para entornos no Development (Producción, Staging, etc.)
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    //se puede configurar la descripción igual que arriba
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 });
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de autenticación
+            app.UseAuthorization(); // Sin argumentos
 
             app.UseEndpoints(endpoints =>
             {

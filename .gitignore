@@ -63,3 +63,4 @@ $RECYCLE.BIN/
 *.log
 *.vspscc
 *.vssscc
+**/Secrets/serviceAccountKey.json

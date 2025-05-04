@@ -1,24 +1,25 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using BackendSoulBeats.API.Application.V1.ViewModel.Common;
+using BackendSoulBeats.API.Application.V1.ViewModel.PostAuth;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BackendSoulBeats.API.Application.V1.Command.PostAuth
 {
     public class PostAuthRequest : IRequest<PostAuthResponse>
     {
-        /// <summary>
-        /// Proveedor social a utilizar.
-        /// Valores permitidos: gmail, facebook.
-        /// </summary>
-        [Required]
-        [JsonPropertyName("provider")]
-        public string Provider { get; set; }
+        internal HeaderViewModel Header { get; set; }
+        public PostAuthRequest() {}
+        public PostAuthRequest(HeaderViewModel header)
+        {
+            Header = header;
+        }
 
         /// <summary>
-        /// Código de autorización recibido tras el login.
+        /// 
         /// </summary>
-        [Required]
-        [JsonPropertyName("authCode")]
-        public string AuthCode { get; set; }
+        [FromBody]
+        public PostAuthBody Body {get; set;}
     }
 }

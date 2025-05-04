@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendSoulBeats.Domain", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendSoulBeats.Infra", "BackendSoulBeats.Infra\BackendSoulBeats.Infra.csproj", "{4C52856D-C27F-4CFE-9AC7-B16610385285}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendSoulBeats.UnitTests", "BackendSoulBeats.UnitTests\BackendSoulBeats.UnitTests.csproj", "{59B5E600-4F2E-4B1D-83C7-5B0FC8998798}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendSoulBeats.IntegrationTests", "BackendSoulBeats.IntegrationTests\BackendSoulBeats.IntegrationTests.csproj", "{C7655644-A6EE-482A-B219-22AB0A143472}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{4C52856D-C27F-4CFE-9AC7-B16610385285}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C52856D-C27F-4CFE-9AC7-B16610385285}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C52856D-C27F-4CFE-9AC7-B16610385285}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59B5E600-4F2E-4B1D-83C7-5B0FC8998798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B5E600-4F2E-4B1D-83C7-5B0FC8998798}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59B5E600-4F2E-4B1D-83C7-5B0FC8998798}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59B5E600-4F2E-4B1D-83C7-5B0FC8998798}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7655644-A6EE-482A-B219-22AB0A143472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7655644-A6EE-482A-B219-22AB0A143472}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7655644-A6EE-482A-B219-22AB0A143472}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7655644-A6EE-482A-B219-22AB0A143472}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

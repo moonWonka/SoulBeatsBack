@@ -31,8 +31,9 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> PostRegister([FromBody] PostAuthRequest request)
+        public async Task<IActionResult> PostRegister([FromRoute] PostAuthRequest request,[FromRoute] HeaderViewModel header)
         {
+            if(header != null) request.Header = header;
             // Se envía la solicitud al handler a través de MediatR
             var response = await _mediator.Send(request);
 
