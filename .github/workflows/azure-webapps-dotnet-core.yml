@@ -1,9 +1,9 @@
 name: Build and deploy ASP.Net Core app to Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: backSoulBeats
-  AZURE_WEBAPP_PACKAGE_PATH: "./publish"
-  DOTNET_VERSION: "8.0"
+  AZURE_WEBAPP_NAME: backSoulBeats # Nombre de tu Azure Web App
+  AZURE_WEBAPP_PACKAGE_PATH: "." # Carpeta raíz del proyecto
+  DOTNET_VERSION: "8.0" # Versión de .NET que estás usando
 
 on:
   push:
@@ -36,19 +36,19 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Build project
-        run: dotnet build BackendSoulBeats.API/BackendSoulBeats.API.csproj --configuration Release
+        run: dotnet build --configuration Release
 
       - name: Run tests
         run: dotnet test --configuration Release --no-build --verbosity normal
 
       - name: Publish project
-        run: dotnet publish BackendSoulBeats.API/BackendSoulBeats.API.csproj -c Release -o ./publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-app
-          path: ./publish
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     needs: build
@@ -61,7 +61,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dotnet-app
-          path: ./publish
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -75,7 +74,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ./publish
+          package: .
 
       - name: Show deployed app URL
         run: |
