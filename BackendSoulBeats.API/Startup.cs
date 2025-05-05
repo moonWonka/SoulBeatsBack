@@ -45,44 +45,31 @@ namespace BackendSoulBeats.API
                 });
             });
 
-            // Configuración de políticas de autorización
             services.AddAuthorization(options =>
             {
-                // Política para usuarios que tienen un email registrado
                 options.AddPolicy("SoloUsuariosConEmail", policy =>
                     policy.RequireClaim(System.Security.Claims.ClaimTypes.Email));
 
-                // Política para usuarios con rol de administrador
                 options.AddPolicy("AdminOnly", policy =>
                     policy.RequireClaim("role", "admin"));
             });
 
-            // Otros servicios...
             ConfigureServicesDependencies(services);
             ConfigureRepositoryDependencies(services);
 
-            // Inicializa Firebase Admin SDK
             FirebaseInitializer.Initialize();
         }
 
-        /// <summary>
-        /// Método para registrar las inyecciones de servicios (por ejemplo, servicios de negocio).
-        /// </summary>
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
             // Ejemplo:
             // services.AddScoped<IAuthService, AuthService>();
-            // services.AddScoped<IOtroServicio, OtroServicio>();
         }
 
-        /// <summary>
-        /// Método para registrar las inyecciones de repositorios (por ejemplo, acceso a la base de datos).
-        /// </summary>
         private void ConfigureRepositoryDependencies(IServiceCollection services)
         {
             // Ejemplo:
             // services.AddScoped<IUserRepository, UserRepository>();
-            // services.AddScoped<IProductRepository, ProductRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
@@ -90,6 +77,7 @@ namespace BackendSoulBeats.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
@@ -98,19 +86,17 @@ namespace BackendSoulBeats.API
             }
             else
             {
+                // Para entornos no Development (Producción, Staging, etc.)
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
+                    //se puede configurar la descripción igual que arriba
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 });
             }
-
-            app.UseHttpsRedirection();
             app.UseRouting();
-
-            app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de autenticación
-            app.UseAuthorization(); // Sin argumentos
-
+            app.UseMiddleware<FirebaseAuthenticationMiddleware>();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
