@@ -1,6 +1,13 @@
-using BackendSoulBeats.API.Configuration;
-using BackendSoulBeats.API.Middleware;
-using Microsoft.OpenApi.Models;
+using System.Reflection;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;               // Para ApiVersion
+using Microsoft.AspNetCore.Mvc.Versioning;     // Para AddApiVersioning
+using Microsoft.AspNetCore.Mvc.ApiExplorer;    // Para AddVersionedApiExplorer
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace BackendSoulBeats.API
 {
@@ -17,59 +24,51 @@ namespace BackendSoulBeats.API
         {
             // Registro de controladores y Swagger
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen();
+
+            // Registro de MediatR (buscando los handlers en el assembly)
+            services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            // Configuración del versionado de la API
+            services.AddApiVersioning(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SoulBeats API", Version = "v1" });
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
+                options.DefaultApiVersion = new ApiVersion(1, 0); // Versión por defecto 1.0
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
             });
 
-            services.AddAuthorization(options =>
+            // Registro del explorador de versiones para Swagger
+            services.AddVersionedApiExplorer(options =>
             {
-                options.AddPolicy("SoloUsuariosConEmail", policy =>
-                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Email));
-
-                options.AddPolicy("AdminOnly", policy =>
-                    policy.RequireClaim("role", "admin"));
+                options.GroupNameFormat = "'v'VVV";  // Ejemplo: v1
+                options.SubstituteApiVersionInUrl = true;
             });
 
+            // Registro de otros servicios (lógica de negocio)
             ConfigureServicesDependencies(services);
-            ConfigureRepositoryDependencies(services);
 
-            FirebaseInitializer.Initialize();
+            // Registro de repositorios (acceso a datos)
+            ConfigureRepositoryDependencies(services);
         }
 
+        /// <summary>
+        /// Método para registrar las inyecciones de servicios (por ejemplo, servicios de negocio).
+        /// </summary>
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
             // Ejemplo:
             // services.AddScoped<IAuthService, AuthService>();
+            // services.AddScoped<IOtroServicio, OtroServicio>();
         }
 
+        /// <summary>
+        /// Método para registrar las inyecciones de repositorios (por ejemplo, acceso a la base de datos).
+        /// </summary>
         private void ConfigureRepositoryDependencies(IServiceCollection services)
         {
             // Ejemplo:
             // services.AddScoped<IUserRepository, UserRepository>();
+            // services.AddScoped<IProductRepository, ProductRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
@@ -94,9 +93,13 @@ namespace BackendSoulBeats.API
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 });
             }
+
+            app.UseHttpsRedirection();
+
             app.UseRouting();
-            app.UseMiddleware<FirebaseAuthenticationMiddleware>();
+
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
