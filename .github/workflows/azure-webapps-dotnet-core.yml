@@ -78,4 +78,4 @@ jobs:
 
       - name: Show deployed app URL
         run: |
-          echo "🚀 App deployed at: ${{ secrets.WEBAPP_URL }}"
+          echo "🚀 App deployed at: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/swagger/index.html"
