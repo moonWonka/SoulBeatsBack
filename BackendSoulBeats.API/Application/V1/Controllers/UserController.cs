@@ -74,7 +74,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers{
         /// - 401: Usuario no autenticado
         /// - 500: Error interno del servidor
         /// </returns>
-        [HttpPost("{id}/info")]
+        [HttpPost("{id}/info/test")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GetUserInfoResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
