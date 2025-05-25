@@ -1,8 +1,8 @@
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 
-namespace BackendSoulBeats.API.Application.V1.Command.PostAuth
+namespace BackendSoulBeats.API.Application.V1.Command.PostRegister
 {
-    public class PostAuthResponse : BaseResponse
+    public class PostRegisterResponse : BaseResponse
     {
 
     }
