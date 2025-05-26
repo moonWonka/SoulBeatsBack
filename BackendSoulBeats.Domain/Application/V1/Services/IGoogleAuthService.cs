@@ -1,4 +1,4 @@
-namespace BackendSoulBeats.Domain.Application.Services
+namespace BackendSoulBeats.Domain.Application.V1.Services
 {
     public interface IGoogleAuthService
     {
