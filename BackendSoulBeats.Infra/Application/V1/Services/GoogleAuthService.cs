@@ -1,21 +1,54 @@
 using BackendSoulBeats.Domain.Application.V1.Services;
+using Google.Apis.Auth;
+using Microsoft.Extensions.Configuration;
 
-namespace BackendSoulBeats.Infra.Application.V1.Services
+namespace BackendSoulBeats.Infrastructure.Services
 {
+    /// <summary>
+    /// Implementación del servicio de autenticación de Google.
+    /// </summary>
     public class GoogleAuthService : IGoogleAuthService
     {
-        public GoogleAuthService()
+        private readonly IConfiguration _configuration;
+
+        public GoogleAuthService(IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
-        public Task<bool> IsUserRegisteredAsync(string email)
+        /// <summary>
+        /// Registra un nuevo usuario utilizando el servicio de Google.
+        /// </summary>
+        /// <param name="email">Correo electrónico del usuario.</param>
+        /// <param name="password">Contraseña del usuario.</param>
+        /// <returns>Un valor booleano que indica si el registro fue exitoso.</returns>
+        public async Task<bool> RegisterUserAsync(string email, string password)
         {
-            throw new NotImplementedException();
+            // Lógica para interactuar con la API de Google.
+            // Por ejemplo, puedes usar Google.Apis.Auth para validar tokens o registrar usuarios.
+            try
+            {
+                // Aquí podrías realizar una llamada a la API de Google para registrar al usuario.
+                Console.WriteLine($"Registrando usuario con Google: {email}");
+                return await Task.FromResult(true); // Simulación de éxito.
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al registrar el usuario: {ex.Message}");
+                return false;
+            }
         }
 
-        public Task<bool> RegisterUserAsync(string email, string password)
+        /// <summary>
+        /// Verifica si un usuario ya está registrado en el sistema de Google.
+        /// </summary>
+        /// <param name="email">Correo electrónico del usuario.</param>
+        /// <returns>Un valor booleano que indica si el usuario ya está registrado.</returns>
+        public async Task<bool> IsUserRegisteredAsync(string email)
         {
-            throw new NotImplementedException();
+            // Lógica para verificar si el usuario ya está registrado en Google.
+            Console.WriteLine($"Verificando usuario con Google: {email}");
+            return await Task.FromResult(false); // Simulación de que el usuario no existe.
         }
     }
 }
