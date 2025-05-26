@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;    // Para AddVersionedApiExplorer
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
+using BackendSoulBeats.Domain.Application.V1.Services;
 namespace BackendSoulBeats.API
 {
     public class Startup
@@ -59,6 +59,7 @@ namespace BackendSoulBeats.API
             // Ejemplo:
             // services.AddScoped<IAuthService, AuthService>();
             // services.AddScoped<IOtroServicio, OtroServicio>();
+            services.AddSingleton<IGoogleAuthService, IGoogleAuthService>();
         }
 
         /// <summary>
