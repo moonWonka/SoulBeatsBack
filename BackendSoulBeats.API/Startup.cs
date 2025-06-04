@@ -18,40 +18,25 @@ namespace BackendSoulBeats.API
         {
             // Registro de controladores y Swagger
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen();
+
+            // Registro de MediatR (buscando los handlers en el assembly)
+            services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            // Configuración del versionado de la API
+            services.AddApiVersioning(options =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SoulBeats API", Version = "v1" });
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer"
-                });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
+                options.DefaultApiVersion = new ApiVersion(1, 0); // Versión por defecto 1.0
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
             });
 
-            // Configuración de políticas de autorización
-            services.AddAuthorization(options =>
+            // Registro del explorador de versiones para Swagger
+            services.AddVersionedApiExplorer(options =>
             {
-                // Política para usuarios que tienen un email registrado
-                options.AddPolicy("SoloUsuariosConEmail", policy =>
-                    policy.RequireClaim(System.Security.Claims.ClaimTypes.Email));
+                options.GroupNameFormat = "'v'VVV";  // Ejemplo: v1
+                options.SubstituteApiVersionInUrl = true;
+            });
 
                 // Política para usuarios con rol de administrador
                 options.AddPolicy("AdminOnly", policy =>
@@ -63,10 +48,9 @@ namespace BackendSoulBeats.API
 
             // Otros servicios...
             ConfigureServicesDependencies(services);
-            ConfigureRepositoryDependencies(services);
 
-            // Inicializa Firebase Admin SDK
-            FirebaseInitializer.Initialize();
+            // Registro de repositorios (acceso a datos)
+            ConfigureRepositoryDependencies(services);
         }
 
         /// <summary>
@@ -94,6 +78,7 @@ namespace BackendSoulBeats.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
@@ -102,14 +87,17 @@ namespace BackendSoulBeats.API
             }
             else
             {
+                // Para entornos no Development (Producción, Staging, etc.)
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
+                    //se puede configurar la descripción igual que arriba
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 });
             }
 
             app.UseHttpsRedirection();
+
             app.UseRouting();
 
             // ¡IMPORTANTE! El orden es crucial

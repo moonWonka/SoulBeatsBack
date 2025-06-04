@@ -1,5 +1,5 @@
 using System.Net;
-using BackendSoulBeats.API.Application.V1.Command.PostAuth;
+using BackendSoulBeats.API.Application.V1.Command.PostRegister;
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         /// <returns>Devuelve un token JWT y los datos del usuario o la respuesta de error correspondiente.</returns>
         [HttpPost("register")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(PostAuthResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(PostRegisterResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
