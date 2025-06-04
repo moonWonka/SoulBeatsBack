@@ -9,7 +9,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers{
     [ApiController]
     [ApiVersion("1.0")]
     [Route("User")]
-    [Authorize(Policy = "SoloUsuariosConEmail")] // Aplica la política de autorización
+    // [Authorize(Policy = "SoloUsuariosConEmail")] // Aplica la política de autorización
     [Produces("application/json")]
     public class UserController : ControllerBase
     {

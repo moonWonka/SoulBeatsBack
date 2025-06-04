@@ -1,5 +1,6 @@
 using BackendSoulBeats.API.Configuration;
 using BackendSoulBeats.API.Middleware;
+using MediatR;
 using Microsoft.OpenApi.Models;
 
 namespace BackendSoulBeats.API
@@ -57,6 +58,9 @@ namespace BackendSoulBeats.API
                     policy.RequireClaim("role", "admin"));
             });
 
+            // Registro de MediatR
+            services.AddMediatR(typeof(Startup).Assembly);
+
             // Otros servicios...
             ConfigureServicesDependencies(services);
             ConfigureRepositoryDependencies(services);
@@ -108,8 +112,13 @@ namespace BackendSoulBeats.API
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de autenticación
-            app.UseAuthorization(); // Sin argumentos
+            // ¡IMPORTANTE! El orden es crucial
+            app.UseAuthentication(); // Autenticación JWT de .NET Core
+
+            // // Middleware personalizado de Firebase (sin usar extensión)
+            // app.UseMiddleware<FirebaseAuthenticationMiddleware>();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
