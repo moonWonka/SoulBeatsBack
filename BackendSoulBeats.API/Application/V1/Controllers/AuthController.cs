@@ -2,6 +2,7 @@ using System.Net;
 using BackendSoulBeats.API.Application.V1.Command.PostRegister;
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BackendSoulBeats.API.Application.V1.Controllers
@@ -9,6 +10,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [Route("auth")]
+    [Authorize(Policy = "AllowAnonymous")]
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -32,7 +34,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> PostRegister([FromRoute] PostAuthRequest request)
+        public async Task<IActionResult> PostRegister([FromBody] PostRegisterRequest request)
         {
             try
             {

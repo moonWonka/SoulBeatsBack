@@ -18,7 +18,6 @@ namespace BackendSoulBeats.API.Middleware
         {
             var authHeader = context.Request.Headers["Authorization"].ToString();
 
-            // Si no hay header de autorización, continuar sin autenticar
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             {
                 await _next(context);
@@ -31,14 +30,13 @@ namespace BackendSoulBeats.API.Middleware
             {
                 var decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(token);
 
-                // Construir Claims
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, decodedToken.Uid),
                     new Claim("firebase_uid", decodedToken.Uid)
                 };
 
-                if (decodedToken.Claims.TryGetValue("email", out var email) && email != null)
+                if (decodedToken.Claims.TryGetValue("email", out var email) && email != null && email.ToString() != null)
                 {
                     claims.Add(new Claim(ClaimTypes.Email, email.ToString() ?? string.Empty));
                 }
@@ -48,62 +46,11 @@ namespace BackendSoulBeats.API.Middleware
 
                 await _next(context);
             }
-            catch (FirebaseAuthException ex)
+            catch (FirebaseAuthException)
             {
-                _logger.LogWarning("Token de Firebase inválido: {Error}", ex.Message);
-
-                // Crear un objeto de respuesta simple
-                var errorResponse = new
-                {
-                    error = "unauthorized",
-                    message = "Token de Firebase inválido",
-                    details = ex.Message
-                };
-
                 context.Response.StatusCode = 401;
-                context.Response.ContentType = "application/json";
-
-                // Configurar opciones para evitar referencias cíclicas
-                var options = new System.Text.Json.JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
-                };
-
-                await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(errorResponse, options));
-                return;
+                await context.Response.WriteAsync("Token inválido");
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error inesperado en autenticación de Firebase");
-
-                var errorResponse = new
-                {
-                    error = "internal_server_error",
-                    message = "Error interno del servidor"
-                };
-
-                context.Response.StatusCode = 500;
-                context.Response.ContentType = "application/json";
-
-                var options = new System.Text.Json.JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
-                };
-
-                await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(errorResponse, options));
-                return;
-            }
-        }
-    }
-
-    // Extensión para facilitar el registro del middleware
-    public static class FirebaseAuthenticationMiddlewareExtensions
-    {
-        public static IApplicationBuilder UseFirebaseAuthentication(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<FirebaseAuthenticationMiddleware>();
         }
     }
 }

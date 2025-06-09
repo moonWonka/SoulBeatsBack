@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BackendSoulBeats.Domain\BackendSoulBeats.Domain.csproj" />
+    <ProjectReference Include="..\BackendSoulBeats.Infra\BackendSoulBeats.Infra.csproj" />
   </ItemGroup>
 
 </Project>

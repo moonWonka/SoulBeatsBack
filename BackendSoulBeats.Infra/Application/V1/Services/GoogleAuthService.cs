@@ -1,6 +1,6 @@
 using BackendSoulBeats.Domain.Application.V1.Services;
-using Google.Apis.Auth;
 using Microsoft.Extensions.Configuration;
+using FirebaseAdmin.Auth;
 
 namespace BackendSoulBeats.Infrastructure.Services
 {
@@ -15,28 +15,17 @@ namespace BackendSoulBeats.Infrastructure.Services
         {
             _configuration = configuration;
         }
-
-        /// <summary>
-        /// Registra un nuevo usuario utilizando el servicio de Google.
-        /// </summary>
-        /// <param name="email">Correo electrónico del usuario.</param>
-        /// <param name="password">Contraseña del usuario.</param>
-        /// <returns>Un valor booleano que indica si el registro fue exitoso.</returns>
-        public async Task<bool> RegisterUserAsync(string email, string password)
+ 
+        public async Task<string> RegisterUserAsync(string email, string password)
         {
-            // Lógica para interactuar con la API de Google.
-            // Por ejemplo, puedes usar Google.Apis.Auth para validar tokens o registrar usuarios.
-            try
+            UserRecordArgs userArgs = new()
             {
-                // Aquí podrías realizar una llamada a la API de Google para registrar al usuario.
-                Console.WriteLine($"Registrando usuario con Google: {email}");
-                return await Task.FromResult(true); // Simulación de éxito.
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al registrar el usuario: {ex.Message}");
-                return false;
-            }
+                Email = email,
+                Password = password
+            };
+
+            UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(userArgs);
+            return userRecord.Uid;
         }
 
         /// <summary>

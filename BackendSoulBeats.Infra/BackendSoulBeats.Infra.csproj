@@ -1,18 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\BackendSoulBeats.Domain\BackendSoulBeats.Domain.csproj" />
+    <ProjectReference Include="..\BackendSoulBeats.Domain\BackendSoulBeats.Domain.csproj"/>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5"/>
+    <PackageReference Include="FirebaseAdmin" Version="3.2.0"/>
   </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
 </Project>

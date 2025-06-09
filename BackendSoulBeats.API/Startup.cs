@@ -1,15 +1,14 @@
-using BackendSoulBeats.API.Configuration;
 using BackendSoulBeats.API.Middleware;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;               // Para ApiVersion
-using Microsoft.AspNetCore.Mvc.Versioning;     // Para AddApiVersioning
-using Microsoft.AspNetCore.Mvc.ApiExplorer;    // Para AddVersionedApiExplorer
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using BackendSoulBeats.Domain.Application.V1.Services;
+using BackendSoulBeats.Infrastructure.Services;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Google.Apis.Auth.OAuth2;
+using FirebaseAdmin;
+using System;
+
 namespace BackendSoulBeats.API
 {
     public class Startup
@@ -25,17 +24,54 @@ namespace BackendSoulBeats.API
         {
             // Registro de controladores y Swagger
             services.AddControllers();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "SoulBeats API",
+                    Version = "v1",
+                    Description = "Backend para la aplicación SoulBeats, proporcionando servicios de autenticación, gestión de usuarios, y otras funcionalidades."
+                });
 
-            // Registro de MediatR (buscando los handlers en el assembly)
-            services.AddMediatR(Assembly.GetExecutingAssembly());
+                // Configuración de seguridad para Swagger
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Ingrese el token JWT en el formato: Bearer {token}"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
+
+            // Registro de MediatR
+            services.AddMediatR(typeof(Startup).Assembly);
 
             // Configuración del versionado de la API
             services.AddApiVersioning(options =>
             {
-                options.DefaultApiVersion = new ApiVersion(1, 0); // Versión por defecto 1.0
+                options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
+
+                // Configurar para usar encabezados en lugar de query parameters
+                options.ApiVersionReader = new HeaderApiVersionReader("api-version");
             });
 
             // Registro del explorador de versiones para Swagger
@@ -45,13 +81,20 @@ namespace BackendSoulBeats.API
                 options.SubstituteApiVersionInUrl = true;
             });
 
-                // Política para usuarios con rol de administrador
-                options.AddPolicy("AdminOnly", policy =>
-                    policy.RequireClaim("role", "admin"));
-            });
+            // Configuración de políticas de autorización
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("FirebaseAuthenticated", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.AddAuthenticationSchemes("Firebase");
+                });
 
-            // Registro de MediatR
-            services.AddMediatR(typeof(Startup).Assembly);
+                options.AddPolicy("AllowAnonymous", policy =>
+                {
+                    policy.RequireAssertion(_ => true); // Permitir acceso sin autenticación
+                });
+            });
 
             // Otros servicios...
             ConfigureServicesDependencies(services);
@@ -65,10 +108,7 @@ namespace BackendSoulBeats.API
         /// </summary>
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
-            // Ejemplo:
-            // services.AddScoped<IAuthService, AuthService>();
-            // services.AddScoped<IOtroServicio, OtroServicio>();
-            services.AddSingleton<IGoogleAuthService, IGoogleAuthService>();
+            services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
         }
 
         /// <summary>
@@ -83,6 +123,19 @@ namespace BackendSoulBeats.API
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
+            // Leer el path de las credenciales desde appsettings.json
+            var credentialsPath = Configuration["FIREBASE_CREDENTIALS_PATH"];
+            if (string.IsNullOrEmpty(credentialsPath))
+            {
+                throw new InvalidOperationException("La configuración FIREBASE_CREDENTIALS_PATH no está definida en appsettings.json.");
+            }
+
+            // Inicializar Firebase
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromFile(credentialsPath)
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -95,11 +148,9 @@ namespace BackendSoulBeats.API
             }
             else
             {
-                // Para entornos no Development (Producción, Staging, etc.)
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    //se puede configurar la descripción igual que arriba
                     options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 });
             }
@@ -108,11 +159,9 @@ namespace BackendSoulBeats.API
 
             app.UseRouting();
 
-            // ¡IMPORTANTE! El orden es crucial
             app.UseAuthentication(); // Autenticación JWT de .NET Core
 
-            // // Middleware personalizado de Firebase (sin usar extensión)
-            // app.UseMiddleware<FirebaseAuthenticationMiddleware>();
+            app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de Firebase
 
             app.UseAuthorization();
 
