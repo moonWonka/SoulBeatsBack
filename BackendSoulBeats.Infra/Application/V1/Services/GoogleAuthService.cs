@@ -25,6 +25,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
             };
 
             UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(userArgs);
+
             return userRecord.Uid;
         }
 
@@ -35,9 +36,8 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
         /// <returns>Un valor booleano que indica si el usuario ya está registrado.</returns>
         public async Task<bool> IsUserRegisteredAsync(string email)
         {
-            // Lógica para verificar si el usuario ya está registrado en Google.
-            _logger.LogInformation("Verificando usuario con Google: {Email}", email);
-            return await Task.FromResult(false); // Simulación de que el usuario no existe.
+            // Simulación de que el usuario no existe.
+            return await Task.FromResult(false);
         }
     }
 }

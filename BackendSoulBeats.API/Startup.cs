@@ -1,13 +1,12 @@
-using BackendSoulBeats.API.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using BackendSoulBeats.Domain.Application.V1.Services;
-using BackendSoulBeats.Infrastructure.Services;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Google.Apis.Auth.OAuth2;
 using FirebaseAdmin;
-using System;
+using Google.Apis.Auth.OAuth2;
+using BackendSoulBeats.API.Middleware;
+using BackendSoulBeats.Domain.Application.V1.Services;
+using BackendSoulBeats.Infra.Application.V1.Services;
 
 namespace BackendSoulBeats.API
 {
