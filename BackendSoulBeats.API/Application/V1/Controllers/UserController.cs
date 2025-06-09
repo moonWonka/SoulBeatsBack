@@ -9,7 +9,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers{
     [ApiController]
     [ApiVersion("1.0")]
     [Route("User")]
-    // [Authorize(Policy = "SoloUsuariosConEmail")] // Aplica la política de autorización
+    [Authorize(Policy = "FirebaseAuthenticated")] // Aplica la política de autorización
     [Produces("application/json")]
     public class UserController : ControllerBase
     {
@@ -74,17 +74,15 @@ namespace BackendSoulBeats.API.Application.V1.Controllers{
         /// - 401: Usuario no autenticado
         /// - 500: Error interno del servidor
         /// </returns>
-        [HttpPost("{id}/info/test")]
+        [HttpGet("{id}/info")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GetUserInfoResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetIUser([FromRoute] long id, [FromRoute] HeaderViewModel header)
+        public async Task<IActionResult> GetIUser([FromRoute] long id)
         {
-            GetUserInfoRequest request = new GetUserInfoRequest(header) { UserId = id.ToString() };
-            if (header != null) request.Header = header;
-            
+            GetUserInfoRequest request = new() { UserId = id.ToString() };            
             // Puedes obtener el UID del usuario autenticado así:
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 

@@ -6,7 +6,11 @@ namespace BackendSoulBeats.API.Application.V1.Query
     {
         public async Task<GetUserInfoResponse> Handle(GetUserInfoRequest request, CancellationToken cancellationToken)
         {
-            return await Task.FromResult(new GetUserInfoResponse());
+            return await Task.FromResult(new GetUserInfoResponse
+            {
+                Id = request.UserId,
+                MoreInformation = "User information retrieved successfully."
+            });
         }
     }
     

@@ -4,6 +4,6 @@ namespace BackendSoulBeats.API.Application.V1.Command.PostRegister
 {
     public class PostRegisterResponse : BaseResponse
     {
-
+        
     }
 }
