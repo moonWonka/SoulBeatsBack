@@ -2,7 +2,7 @@ using BackendSoulBeats.Domain.Application.V1.Services;
 using Microsoft.Extensions.Configuration;
 using FirebaseAdmin.Auth;
 
-namespace BackendSoulBeats.Infrastructure.Services
+namespace BackendSoulBeats.Infra.Application.V1.Services
 {
     /// <summary>
     /// Implementación del servicio de autenticación de Google.
