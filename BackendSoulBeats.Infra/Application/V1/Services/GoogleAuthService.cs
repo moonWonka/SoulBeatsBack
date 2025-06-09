@@ -36,7 +36,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
         public async Task<bool> IsUserRegisteredAsync(string email)
         {
             // Lógica para verificar si el usuario ya está registrado en Google.
-            Console.WriteLine($"Verificando usuario con Google: {email}");
+            _logger.LogInformation("Verificando usuario con Google: {Email}", email);
             return await Task.FromResult(false); // Simulación de que el usuario no existe.
         }
     }
