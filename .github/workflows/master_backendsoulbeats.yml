@@ -65,4 +65,5 @@ jobs:
           app-name: 'backendSoulBeats'
           slot-name: 'Production'
           package: .
-          
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
