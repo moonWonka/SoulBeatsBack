@@ -38,8 +38,8 @@ jobs:
             exit 1
           }
 
-          Write-Output "✅ firebase.json creado correctamente con tamaño: $length caracteres"
-          Write-Output "🔍 Primera línea del archivo:"
+          Write-Output "firebase.json creado correctamente con tamaño: $length caracteres"
+          Write-Output "Primera línea del archivo:"
           Get-Content $path | Select-Object -First 1
 
       - name: Build with dotnet
