@@ -65,6 +65,9 @@ $RECYCLE.BIN/
 *.vssscc
 **/Secrets/serviceAccountKey.json
 
+# Firebase credentials
+**/firebase.json
+
 # VS Code settings with sensitive data
 .vscode/
 
