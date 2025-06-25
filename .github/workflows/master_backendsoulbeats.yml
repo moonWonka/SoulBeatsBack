@@ -21,25 +21,30 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Decode Firebase credentials to file (firebase.json)
+      - name: Create Firebase credentials file (firebase.json)
         shell: powershell
         run: |
           $path = "firebase.json"
-          [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String("${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY_B64 }}"))
+          $firebaseJson = @"
+          ${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY }}
+          "@
+          
+          [IO.File]::WriteAllText($path, $firebaseJson, [System.Text.Encoding]::UTF8)
           
           if (-Not (Test-Path $path)) {
-            Write-Error "ERROR: No se creó firebase.json"
+            Write-Error "ERROR: firebase.json was not created"
             exit 1
           }
 
-          $length = (Get-Content $path).Length
-          if ($length -eq 0) {
-            Write-Error "ERROR: firebase.json está vacío"
+          $content = Get-Content $path -Raw
+          if ([string]::IsNullOrWhiteSpace($content)) {
+            Write-Error "ERROR: firebase.json is empty"
             exit 1
           }
 
-          Write-Output "firebase.json creado correctamente con tamaño: $length caracteres"
-          Write-Output "Primera línea del archivo:"
+          $length = $content.Length
+          Write-Output "firebase.json created successfully with size: $length characters"
+          Write-Output "First line of the file:"
           Get-Content $path | Select-Object -First 1
 
       - name: Build with dotnet
