@@ -37,12 +37,11 @@ namespace BackendSoulBeats.API.Configuration
 
             try
             {
-                var appOptions = new AppOptions()
+                FirebaseApp.Create(new AppOptions
                 {
-                    Credential = GoogleCredential.FromJson(firebaseJson)
-                };
+                    Credential = GoogleCredential.FromFile("firebase.json")
+                });
 
-                FirebaseApp.Create(appOptions);
                 _initialized = true;
             }
             catch (Exception ex)

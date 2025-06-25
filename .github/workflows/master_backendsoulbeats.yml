@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - backendSoulBeats
 
 on:
@@ -14,7 +11,7 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -24,11 +21,35 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Decode Firebase credentials to file (firebase.json)
+        shell: powershell
+        run: |
+          $path = "firebase.json"
+          [IO.File]::WriteAllBytes($path, [Convert]::FromBase64String("${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY_B64 }}"))
+          
+          if (-Not (Test-Path $path)) {
+            Write-Error "ERROR: No se creó firebase.json"
+            exit 1
+          }
+
+          $length = (Get-Content $path).Length
+          if ($length -eq 0) {
+            Write-Error "ERROR: firebase.json está vacío"
+            exit 1
+          }
+
+          Write-Output "✅ firebase.json creado correctamente con tamaño: $length caracteres"
+          Write-Output "🔍 Primera línea del archivo:"
+          Get-Content $path | Select-Object -First 1
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+
+      - name: Copy firebase.json to output folder
+        run: copy firebase.json "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -39,21 +60,20 @@ jobs:
   deploy:
     runs-on: windows-latest
     needs: build
-    # Solo desplegamos en master
     if: github.ref == 'refs/heads/master'
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:

@@ -17,10 +17,15 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.14" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\BackendSoulBeats.Domain\BackendSoulBeats.Domain.csproj" />
     <ProjectReference Include="..\BackendSoulBeats.Infra\BackendSoulBeats.Infra.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="firebase.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
