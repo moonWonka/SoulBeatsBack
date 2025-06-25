@@ -1,45 +1,54 @@
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using System.Text;
 
 namespace BackendSoulBeats.API.Configuration
 {
     public static class FirebaseInitializer
     {
         private static bool _initialized = false;
+
         public static void Initialize()
         {
             if (_initialized)
-                return; // No volver a inicializar si ya fue hecho
+                return;
 
-            // Intentar usar variable de entorno
-            var firebaseKeyJson = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_KEY");
+            // Obtener la variable base64 desde el entorno
+            var firebaseKeyBase64 = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_KEY_B64");
 
-            if (string.IsNullOrWhiteSpace(firebaseKeyJson))
+            if (string.IsNullOrWhiteSpace(firebaseKeyBase64))
             {
                 throw new InvalidOperationException(
-                    "No se encontraron credenciales de Firebase. " +
-                    "Configure la variable de entorno FIREBASE_SERVICE_ACCOUNT_KEY.");
+                    "No se encontró la variable FIREBASE_SERVICE_ACCOUNT_KEY_B64 en el entorno.");
             }
 
-            AppOptions appOptions;
+            string firebaseJson;
 
-            // Usar JSON desde variable de entorno
             try
             {
-                appOptions = new AppOptions()
-                {
-                    Credential = GoogleCredential.FromJson(firebaseKeyJson)
-                };
+                // Decodificar desde base64 a string JSON
+                byte[] data = Convert.FromBase64String(firebaseKeyBase64);
+                firebaseJson = Encoding.UTF8.GetString(data);
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(
-                    "CONFIGURACIÓN INVÁLIDA: Error al procesar las credenciales de Firebase desde la variable de entorno. " +
-                    $"Verifique que el JSON sea válido. Error: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al decodificar la clave de Firebase desde base64.", ex);
             }
 
-            FirebaseApp.Create(appOptions);
-            _initialized = true;
+            try
+            {
+                var appOptions = new AppOptions()
+                {
+                    Credential = GoogleCredential.FromJson(firebaseJson)
+                };
+
+                FirebaseApp.Create(appOptions);
+                _initialized = true;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error al inicializar FirebaseApp con las credenciales proporcionadas.", ex);
+            }
         }
     }
 }
