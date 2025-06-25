@@ -35,6 +35,7 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+
   deploy:
     runs-on: windows-latest
     needs: build
@@ -67,5 +68,3 @@ jobs:
           app-name: 'backendSoulBeats'
           slot-name: 'Production'
           package: .
-        env:
-          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
