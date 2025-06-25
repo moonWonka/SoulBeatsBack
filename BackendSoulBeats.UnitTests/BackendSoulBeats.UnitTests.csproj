@@ -23,6 +23,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BackendSoulBeats.Domain\BackendSoulBeats.Domain.csproj" />
+    <ProjectReference Include="..\BackendSoulBeats.API\BackendSoulBeats.API.csproj" />
+    <ProjectReference Include="..\BackendSoulBeats.Infra\BackendSoulBeats.Infra.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="11.0.0" /> <!-- Alineado con MediatR.Extensions.Microsoft.DependencyInjection 11.1.0 -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" /> <!-- .NET 8 Standard -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.5" /> <!-- Alineado con BackendSoulBeats.Infra -->
+    <PackageReference Include="FirebaseAdmin" Version="3.2.0" /> <!-- Alineado con BackendSoulBeats.API e Infra -->
+    <!-- Para Microsoft.AspNetCore.Mvc (ControllerBase, IActionResult, etc.)
+         y Microsoft.AspNetCore.Http (DefaultHttpContext) -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>
