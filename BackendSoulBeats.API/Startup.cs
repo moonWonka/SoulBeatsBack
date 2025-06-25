@@ -125,7 +125,7 @@ namespace BackendSoulBeats.API
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
             // Inicializar Firebase usando el FirebaseInitializer
-            FirebaseInitializer.Initialize();
+            // FirebaseInitializer.Initialize();
 
             if (env.IsDevelopment())
             {
