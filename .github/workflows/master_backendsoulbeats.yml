@@ -24,11 +24,38 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Debug Firebase Configuration (Safe)
+        run: |
+          if ($env:FIREBASE_SERVICE_ACCOUNT_KEY) {
+            $length = $env:FIREBASE_SERVICE_ACCOUNT_KEY.Length
+            $first10 = $env:FIREBASE_SERVICE_ACCOUNT_KEY.Substring(0, [Math]::Min(10, $length))
+            $last10 = if ($length -gt 10) { $env:FIREBASE_SERVICE_ACCOUNT_KEY.Substring($length - 10) } else { "" }
+            Write-Host "✅ Firebase variable encontrada"
+            Write-Host "📏 Longitud: $length caracteres"
+            Write-Host "🔍 Primeros 10 chars: $first10"
+            Write-Host "🔍 Últimos 10 chars: $last10"
+            Write-Host "📄 Comienza con '{': $($env:FIREBASE_SERVICE_ACCOUNT_KEY.StartsWith('{'))"
+            Write-Host "📄 Termina con '}': $($env:FIREBASE_SERVICE_ACCOUNT_KEY.EndsWith('}'))"
+            
+            # Verificar si parece ser Base64
+            $isBase64Pattern = $env:FIREBASE_SERVICE_ACCOUNT_KEY -match '^[A-Za-z0-9+/]*={0,2}$'
+            Write-Host "🔍 Parece Base64: $isBase64Pattern"
+          } else {
+            Write-Host "❌ Variable FIREBASE_SERVICE_ACCOUNT_KEY no encontrada"
+            exit 1
+          }
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY }}
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY }}
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY }}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -68,3 +95,9 @@ jobs:
           app-name: 'backendSoulBeats'
           slot-name: 'Production'
           package: .
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set Azure App Settings
+        run: |
+          az webapp config appsettings set --resource-group myResourceGroup --name backendSoulBeats --settings FIREBASE_SERVICE_ACCOUNT_KEY="${{ secrets.AZURE_FIREBASE_SERVICE_ACCOUNT_KEY }}"
