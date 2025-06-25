@@ -7,7 +7,7 @@ namespace BackendSoulBeats.API.Configuration
     {
         private static bool _initialized = false;
 
-        public static void Initialize(string credentialsPath = "Secrets/serviceAccountKey.json")
+        public static void Initialize(string? credentialsPath = null)
         {
             if (_initialized)
                 return; // No volver a inicializar si ya fue hecho
@@ -19,15 +19,15 @@ namespace BackendSoulBeats.API.Configuration
             
             if (!string.IsNullOrEmpty(firebaseKeyJson))
             {
-                // Usar JSON desde variable de entorno (producción)
+                // Usar JSON desde variable de entorno (desarrollo y producción)
                 appOptions = new AppOptions()
                 {
                     Credential = GoogleCredential.FromJson(firebaseKeyJson)
                 };
             }
-            else
+            else if (!string.IsNullOrEmpty(credentialsPath))
             {
-                // Fallback para desarrollo local (archivo)
+                // Fallback para archivo específico si se proporciona
                 if (!File.Exists(credentialsPath))
                     throw new FileNotFoundException($"El archivo de credenciales de Firebase no se encontró en la ruta especificada: {credentialsPath}");
 
@@ -35,6 +35,12 @@ namespace BackendSoulBeats.API.Configuration
                 {
                     Credential = GoogleCredential.FromFile(credentialsPath)
                 };
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    "No se encontraron credenciales de Firebase. " +
+                    "Configure la variable de entorno FIREBASE_SERVICE_ACCOUNT_KEY o proporcione la ruta del archivo de credenciales.");
             }
 
             FirebaseApp.Create(appOptions);
