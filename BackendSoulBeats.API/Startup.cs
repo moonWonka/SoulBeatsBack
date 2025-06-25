@@ -18,10 +18,11 @@ namespace BackendSoulBeats.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }
-
-        public void ConfigureServices(IServiceCollection services)
+        }        public void ConfigureServices(IServiceCollection services)
         {
+            // Configurar Application Insights
+            services.AddApplicationInsightsTelemetry();
+
             // Registro de controladores y Swagger
             services.AddControllers();
             services.AddSwaggerGen(c =>
