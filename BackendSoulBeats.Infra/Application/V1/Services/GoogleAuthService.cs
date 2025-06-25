@@ -18,15 +18,15 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
  
         public async Task<string> RegisterUserAsync(string email, string password)
         {
-            UserRecordArgs userArgs = new()
-            {
-                Email = email,
-                Password = password
-            };
+            // UserRecordArgs userArgs = new()
+            // {
+            //     Email = email,
+            //     Password = password
+            // };
 
-            UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(userArgs);
-
-            return userRecord.Uid;
+            // UserRecord userRecord = await FirebaseAuth.DefaultInstance.CreateUserAsync(userArgs);
+            var userRecord = "123456789"; // Simulación de creación de usuario
+            return userRecord;
         }
 
         /// <summary>
