@@ -65,4 +65,7 @@ $RECYCLE.BIN/
 *.vssscc
 **/Secrets/serviceAccountKey.json
 
+# VS Code settings with sensitive data
+.vscode/
+
 .fake
