@@ -7,6 +7,7 @@ using Google.Apis.Auth.OAuth2;
 using BackendSoulBeats.API.Middleware;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using BackendSoulBeats.Infra.Application.V1.Services;
+using BackendSoulBeats.API.Configuration;
 
 namespace BackendSoulBeats.API
 {
@@ -118,22 +119,10 @@ namespace BackendSoulBeats.API
             // Ejemplo:
             // services.AddScoped<IUserRepository, UserRepository>();
             // services.AddScoped<IProductRepository, ProductRepository>();
-        }
-
-        public void Configure(IApplicationBuilder app, IHostEnvironment env)
+        }        public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
-            // Leer el path de las credenciales desde appsettings.json
-            var credentialsPath = Configuration["FIREBASE_CREDENTIALS_PATH"];
-            if (string.IsNullOrEmpty(credentialsPath))
-            {
-                throw new InvalidOperationException("La configuración FIREBASE_CREDENTIALS_PATH no está definida en appsettings.json.");
-            }
-
-            // Inicializar Firebase
-            FirebaseApp.Create(new AppOptions
-            {
-                Credential = GoogleCredential.FromFile(credentialsPath)
-            });
+            // Inicializar Firebase usando el FirebaseInitializer
+            FirebaseInitializer.Initialize();
 
             if (env.IsDevelopment())
             {

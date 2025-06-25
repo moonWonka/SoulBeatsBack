@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - master
+      - develop
   workflow_dispatch:
 
 jobs:
@@ -34,10 +35,11 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-
   deploy:
     runs-on: windows-latest
     needs: build
+    # Solo desplegamos en master
+    if: github.ref == 'refs/heads/master'
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
@@ -65,4 +67,5 @@ jobs:
           app-name: 'backendSoulBeats'
           slot-name: 'Production'
           package: .
-          
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
