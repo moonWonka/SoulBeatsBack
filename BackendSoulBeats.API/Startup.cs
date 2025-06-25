@@ -18,7 +18,8 @@ namespace BackendSoulBeats.API
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }        public void ConfigureServices(IServiceCollection services)
+        }
+        public void ConfigureServices(IServiceCollection services)
         {
             // Configurar Application Insights
             services.AddApplicationInsightsTelemetry();
@@ -120,10 +121,11 @@ namespace BackendSoulBeats.API
             // Ejemplo:
             // services.AddScoped<IUserRepository, UserRepository>();
             // services.AddScoped<IProductRepository, ProductRepository>();
-        }        public void Configure(IApplicationBuilder app, IHostEnvironment env)
+        }
+        public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
             // Inicializar Firebase usando el FirebaseInitializer
-            FirebaseInitializer.Initialize();
+            // FirebaseInitializer.Initialize();
 
             if (env.IsDevelopment())
             {
@@ -150,7 +152,7 @@ namespace BackendSoulBeats.API
 
             app.UseAuthentication(); // Autenticación JWT de .NET Core
 
-            app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de Firebase
+            // app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de Firebase
 
             app.UseAuthorization();
 
