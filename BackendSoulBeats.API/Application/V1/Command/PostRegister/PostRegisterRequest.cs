@@ -26,17 +26,21 @@ namespace BackendSoulBeats.API.Application.V1.Command.PostRegister
         // public PostRegisterRequest(HeaderViewModel header)
         // {
         //     Header = header;
-        // }
-
-        /// <summary>
-
+        // }        /// <summary>
+        /// Email del usuario para el registro
         /// </summary>
         [Required]
         public string UserEmail { get; set; }
 
         /// <summary>
+        /// Contraseña del usuario para el registro
         /// </summary>
         [Required]
         public string Password { get; set; }
+
+        /// <summary>
+        /// Nombre para mostrar del usuario (opcional)
+        /// </summary>
+        public string? DisplayName { get; set; }
     }
 }
