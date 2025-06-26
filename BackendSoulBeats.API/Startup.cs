@@ -8,6 +8,8 @@ using BackendSoulBeats.API.Middleware;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using BackendSoulBeats.Infra.Application.V1.Services;
 using BackendSoulBeats.API.Configuration;
+using BackendSoulBeats.Domain.Application.V1.Repository;
+using BackendSoulBeats.Infra.Application.V1.Repository;
 
 namespace BackendSoulBeats.API
 {
@@ -111,16 +113,12 @@ namespace BackendSoulBeats.API
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
             services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
-        }
-
-        /// <summary>
+        }        /// <summary>
         /// Método para registrar las inyecciones de repositorios (por ejemplo, acceso a la base de datos).
         /// </summary>
         private void ConfigureRepositoryDependencies(IServiceCollection services)
         {
-            // Ejemplo:
-            // services.AddScoped<IUserRepository, UserRepository>();
-            // services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ISoulBeatsRepository, SoulBeatsRepository>();
         }
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
