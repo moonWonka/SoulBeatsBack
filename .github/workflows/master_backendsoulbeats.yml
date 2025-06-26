@@ -13,9 +13,6 @@ jobs:
     permissions:
       contents: read
 
-    env:
-      SOULBEATSDB: ${{ secrets.AZURE_SOULBEATSDB }}
-
     steps:
       - uses: actions/checkout@v4
 
