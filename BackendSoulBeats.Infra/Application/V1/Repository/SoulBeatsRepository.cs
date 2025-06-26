@@ -10,7 +10,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
     /// </summary>
     public class SoulBeatsRepository : AbstractRepository, ISoulBeatsRepository
     {
-        private static string DB => "CHATDB";
+        private static string DB => "SOULBEATSDB";
 
         // Usa la variable de entorno "SOULBEATSDB" que contiene la cadena de conexión completa
         public SoulBeatsRepository(ILogger<SoulBeatsRepository> logger) :
