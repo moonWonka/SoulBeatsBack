@@ -79,7 +79,9 @@ namespace BackendSoulBeats.API.Application.V1.Command.PostRegister
                 });
 
                 // Tracking de métricas
-                _telemetryClient.TrackMetric("UserRegistrationDuration", duration); return new PostRegisterResponse
+                _telemetryClient.TrackMetric("UserRegistrationDuration", duration);
+
+                return new PostRegisterResponse
                 {
                     MoreInformation = $"Usuario registrado exitosamente. Firebase UID: {firebaseUid}, BD: {(dbResult ? "OK" : "Error")}"
                 };
