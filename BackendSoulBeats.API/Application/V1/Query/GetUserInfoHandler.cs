@@ -46,6 +46,8 @@ namespace BackendSoulBeats.API.Application.V1.Query
                 var response = new GetUserInfoResponse
                 {
                     Id = userInfo.UserId,
+                    UserName = userInfo.UserName,
+                    Email = userInfo.Email,
                     MoreInformation = $"Usuario: {userInfo.UserName}, Email: {userInfo.Email}, Creado: {userInfo.CreatedAt:yyyy-MM-dd}"
                 };
 
