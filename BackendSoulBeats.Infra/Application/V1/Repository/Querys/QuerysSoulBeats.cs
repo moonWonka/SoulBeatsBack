@@ -108,5 +108,120 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository.Querys
                 FavoriteGenres = COALESCE(@FavoriteGenres, FavoriteGenres),
                 ProfilePictureUrl = COALESCE(@ProfilePictureUrl, ProfilePictureUrl)
             WHERE FirebaseUid = @UserId";
+
+        // =============================================
+        // QUERIES PARA MÚSICA Y GÉNEROS
+        // =============================================
+
+        /// <summary>
+        /// Obtiene todos los géneros musicales activos
+        /// </summary>
+        internal const string GetActiveGenres = @"
+            SELECT 
+                Id, Name, Description, IconUrl, DisplayOrder, IsActive, CreatedAt
+            FROM Genres 
+            WHERE IsActive = 1 
+            ORDER BY DisplayOrder, Name";
+
+        /// <summary>
+        /// Obtiene artistas por género específico
+        /// </summary>
+        internal const string GetArtistsByGenre = @"
+            SELECT 
+                a.Id, a.Name, a.SpotifyId, a.ImageUrl, 
+                a.GenreId, g.Name as GenreName, 
+                a.Popularity, a.IsActive, a.CreatedAt
+            FROM Artists a
+            INNER JOIN Genres g ON a.GenreId = g.Id
+            WHERE a.GenreId = @GenreId 
+            AND a.IsActive = 1 
+            AND g.IsActive = 1
+            ORDER BY a.Popularity DESC, a.Name";
+
+        /// <summary>
+        /// Obtiene todos los artistas activos
+        /// </summary>
+        internal const string GetAllActiveArtists = @"
+            SELECT 
+                a.Id, a.Name, a.SpotifyId, a.ImageUrl, 
+                a.GenreId, g.Name as GenreName, 
+                a.Popularity, a.IsActive, a.CreatedAt
+            FROM Artists a
+            INNER JOIN Genres g ON a.GenreId = g.Id
+            WHERE a.IsActive = 1 
+            AND g.IsActive = 1
+            ORDER BY a.Popularity DESC, a.Name";
+
+        // =============================================
+        // QUERIES PARA PREFERENCIAS DE USUARIO
+        // =============================================
+
+        /// <summary>
+        /// Obtiene las preferencias de géneros del usuario
+        /// </summary>
+        internal const string GetUserGenrePreferences = @"
+            SELECT 
+                ugp.Id, ugp.FirebaseUid, ugp.GenreId, 
+                g.Name as GenreName, ugp.PreferenceLevel, 
+                ugp.CreatedAt, ugp.UpdatedAt
+            FROM UserMusicPreferences ugp
+            INNER JOIN Genres g ON ugp.GenreId = g.Id
+            WHERE ugp.FirebaseUid = @FirebaseUid 
+            AND g.IsActive = 1
+            ORDER BY ugp.PreferenceLevel DESC, g.DisplayOrder";
+
+        /// <summary>
+        /// Obtiene las preferencias de artistas del usuario
+        /// </summary>
+        internal const string GetUserArtistPreferences = @"
+            SELECT 
+                uap.Id, uap.FirebaseUid, uap.ArtistId, 
+                a.Name as ArtistName, uap.PreferenceLevel, 
+                uap.CreatedAt, uap.UpdatedAt
+            FROM UserArtistPreferences uap
+            INNER JOIN Artists a ON uap.ArtistId = a.Id
+            WHERE uap.FirebaseUid = @FirebaseUid 
+            AND a.IsActive = 1
+            ORDER BY uap.PreferenceLevel DESC, a.Name";
+
+        /// <summary>
+        /// Inserta o actualiza una preferencia de género del usuario
+        /// </summary>
+        internal const string UpsertUserGenrePreference = @"
+            MERGE UserMusicPreferences AS target
+            USING (SELECT @FirebaseUid as FirebaseUid, @GenreId as GenreId, @PreferenceLevel as PreferenceLevel) AS source
+            ON (target.FirebaseUid = source.FirebaseUid AND target.GenreId = source.GenreId)
+            WHEN MATCHED THEN
+                UPDATE SET PreferenceLevel = source.PreferenceLevel, UpdatedAt = GETDATE()
+            WHEN NOT MATCHED THEN
+                INSERT (FirebaseUid, GenreId, PreferenceLevel, CreatedAt, UpdatedAt)
+                VALUES (source.FirebaseUid, source.GenreId, source.PreferenceLevel, GETDATE(), GETDATE());";
+
+        /// <summary>
+        /// Inserta o actualiza una preferencia de artista del usuario
+        /// </summary>
+        internal const string UpsertUserArtistPreference = @"
+            MERGE UserArtistPreferences AS target
+            USING (SELECT @FirebaseUid as FirebaseUid, @ArtistId as ArtistId, @PreferenceLevel as PreferenceLevel) AS source
+            ON (target.FirebaseUid = source.FirebaseUid AND target.ArtistId = source.ArtistId)
+            WHEN MATCHED THEN
+                UPDATE SET PreferenceLevel = source.PreferenceLevel, UpdatedAt = GETDATE()
+            WHEN NOT MATCHED THEN
+                INSERT (FirebaseUid, ArtistId, PreferenceLevel, CreatedAt, UpdatedAt)
+                VALUES (source.FirebaseUid, source.ArtistId, source.PreferenceLevel, GETDATE(), GETDATE());";
+
+        /// <summary>
+        /// Elimina una preferencia de género del usuario
+        /// </summary>
+        internal const string DeleteUserGenrePreference = @"
+            DELETE FROM UserMusicPreferences 
+            WHERE FirebaseUid = @FirebaseUid AND GenreId = @GenreId";
+
+        /// <summary>
+        /// Elimina una preferencia de artista del usuario
+        /// </summary>
+        internal const string DeleteUserArtistPreference = @"
+            DELETE FROM UserArtistPreferences 
+            WHERE FirebaseUid = @FirebaseUid AND ArtistId = @ArtistId";
     }
 }
