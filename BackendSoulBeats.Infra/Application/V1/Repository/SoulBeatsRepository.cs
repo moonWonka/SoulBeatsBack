@@ -213,5 +213,186 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
 
             return success;
         }
+
+        // =============================================
+        // IMPLEMENTACIONES PARA MÚSICA Y GÉNEROS
+        // =============================================
+
+        /// <summary>
+        /// Obtiene todos los géneros musicales activos
+        /// </summary>
+        public async Task<IEnumerable<GenreModel>> GetActiveGenresAsync()
+        {
+            _logger?.LogDebug("🔍 Obteniendo géneros musicales activos");
+
+            var genres = await QueryAsync<GenreModel>(
+                QuerysSoulBeats.GetActiveGenres,
+                useTransaction: false
+            );
+
+            _logger?.LogDebug("✅ Géneros obtenidos: {Count}", genres?.Count() ?? 0);
+            return genres ?? Enumerable.Empty<GenreModel>();
+        }
+
+        /// <summary>
+        /// Obtiene artistas por género específico
+        /// </summary>
+        public async Task<IEnumerable<ArtistModel>> GetArtistsByGenreAsync(int genreId)
+        {
+            _logger?.LogDebug("🔍 Obteniendo artistas del género: {GenreId}", genreId);
+
+            var artists = await QueryAsync<ArtistModel>(
+                QuerysSoulBeats.GetArtistsByGenre,
+                new { GenreId = genreId },
+                useTransaction: false
+            );
+
+            _logger?.LogDebug("✅ Artistas obtenidos para género {GenreId}: {Count}", genreId, artists?.Count() ?? 0);
+            return artists ?? Enumerable.Empty<ArtistModel>();
+        }
+
+        /// <summary>
+        /// Obtiene todos los artistas activos
+        /// </summary>
+        public async Task<IEnumerable<ArtistModel>> GetAllActiveArtistsAsync()
+        {
+            _logger?.LogDebug("🔍 Obteniendo todos los artistas activos");
+
+            var artists = await QueryAsync<ArtistModel>(
+                QuerysSoulBeats.GetAllActiveArtists,
+                useTransaction: false
+            );
+
+            _logger?.LogDebug("✅ Artistas activos obtenidos: {Count}", artists?.Count() ?? 0);
+            return artists ?? Enumerable.Empty<ArtistModel>();
+        }
+
+        // =============================================
+        // IMPLEMENTACIONES PARA PREFERENCIAS DE USUARIO
+        // =============================================
+
+        /// <summary>
+        /// Obtiene las preferencias de géneros del usuario
+        /// </summary>
+        public async Task<IEnumerable<UserGenrePreferenceModel>> GetUserGenrePreferencesAsync(string firebaseUid)
+        {
+            _logger?.LogDebug("🔍 Obteniendo preferencias de géneros para usuario: {FirebaseUid}", firebaseUid);
+
+            var preferences = await QueryAsync<UserGenrePreferenceModel>(
+                QuerysSoulBeats.GetUserGenrePreferences,
+                new { FirebaseUid = firebaseUid },
+                useTransaction: false
+            );
+
+            _logger?.LogDebug("✅ Preferencias de géneros obtenidas para {FirebaseUid}: {Count}", firebaseUid, preferences?.Count() ?? 0);
+            return preferences ?? Enumerable.Empty<UserGenrePreferenceModel>();
+        }
+
+        /// <summary>
+        /// Obtiene las preferencias de artistas del usuario
+        /// </summary>
+        public async Task<IEnumerable<UserArtistPreferenceModel>> GetUserArtistPreferencesAsync(string firebaseUid)
+        {
+            _logger?.LogDebug("🔍 Obteniendo preferencias de artistas para usuario: {FirebaseUid}", firebaseUid);
+
+            var preferences = await QueryAsync<UserArtistPreferenceModel>(
+                QuerysSoulBeats.GetUserArtistPreferences,
+                new { FirebaseUid = firebaseUid },
+                useTransaction: false
+            );
+
+            _logger?.LogDebug("✅ Preferencias de artistas obtenidas para {FirebaseUid}: {Count}", firebaseUid, preferences?.Count() ?? 0);
+            return preferences ?? Enumerable.Empty<UserArtistPreferenceModel>();
+        }
+
+        /// <summary>
+        /// Actualiza las preferencias de géneros del usuario
+        /// </summary>
+        public async Task<bool> UpdateUserGenrePreferencesAsync(string firebaseUid, List<(int genreId, int preferenceLevel)> preferences)
+        {
+            _logger?.LogDebug("🔄 Actualizando preferencias de géneros para usuario: {FirebaseUid}, Items: {Count}", firebaseUid, preferences?.Count ?? 0);
+
+            if (preferences == null || !preferences.Any())
+            {
+                _logger?.LogWarning("⚠️ No hay preferencias de géneros para actualizar");
+                return true; // No es un error, simplemente no hay nada que hacer
+            }
+
+            try
+            {
+                var operations = preferences.Select(p => (
+                    query: QuerysSoulBeats.UpsertUserGenrePreference,
+                    parameters: (object)new { 
+                        FirebaseUid = firebaseUid, 
+                        GenreId = p.genreId, 
+                        PreferenceLevel = p.preferenceLevel 
+                    }
+                )).ToArray();
+
+                var totalAffected = await ExecuteMultipleAsync(operations);
+                var success = totalAffected > 0;
+
+                if (success)
+                {
+                    _logger?.LogDebug("✅ Preferencias de géneros actualizadas exitosamente para {FirebaseUid}", firebaseUid);
+                }
+                else
+                {
+                    _logger?.LogWarning("⚠️ No se actualizaron preferencias de géneros para {FirebaseUid}", firebaseUid);
+                }
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ Error al actualizar preferencias de géneros para {FirebaseUid}", firebaseUid);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza las preferencias de artistas del usuario
+        /// </summary>
+        public async Task<bool> UpdateUserArtistPreferencesAsync(string firebaseUid, List<(int artistId, int preferenceLevel)> preferences)
+        {
+            _logger?.LogDebug("🔄 Actualizando preferencias de artistas para usuario: {FirebaseUid}, Items: {Count}", firebaseUid, preferences?.Count ?? 0);
+
+            if (preferences == null || !preferences.Any())
+            {
+                _logger?.LogWarning("⚠️ No hay preferencias de artistas para actualizar");
+                return true; // No es un error, simplemente no hay nada que hacer
+            }
+
+            try
+            {
+                var operations = preferences.Select(p => (
+                    query: QuerysSoulBeats.UpsertUserArtistPreference,
+                    parameters: (object)new { 
+                        FirebaseUid = firebaseUid, 
+                        ArtistId = p.artistId, 
+                        PreferenceLevel = p.preferenceLevel 
+                    }
+                )).ToArray();
+
+                var totalAffected = await ExecuteMultipleAsync(operations);
+                var success = totalAffected > 0;
+
+                if (success)
+                {
+                    _logger?.LogDebug("✅ Preferencias de artistas actualizadas exitosamente para {FirebaseUid}", firebaseUid);
+                }
+                else
+                {
+                    _logger?.LogWarning("⚠️ No se actualizaron preferencias de artistas para {FirebaseUid}", firebaseUid);
+                }
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "❌ Error al actualizar preferencias de artistas para {FirebaseUid}", firebaseUid);
+                throw;
+            }
+        }
     }
 }
