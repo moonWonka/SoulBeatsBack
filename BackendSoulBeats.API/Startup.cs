@@ -85,6 +85,10 @@ namespace BackendSoulBeats.API
                 options.SubstituteApiVersionInUrl = true;
             });
 
+            // Configuración de autenticación
+            services.AddAuthentication("Firebase")
+                .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, FirebaseAuthenticationHandler>("Firebase", options => { });
+
             // Configuración de políticas de autorización
             services.AddAuthorization(options =>
             {
@@ -148,9 +152,7 @@ namespace BackendSoulBeats.API
 
             app.UseRouting();
 
-            app.UseAuthentication(); // Autenticación JWT de .NET Core
-
-            // app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de Firebase
+            app.UseAuthentication(); // Autenticación Firebase
 
             app.UseAuthorization();
 
