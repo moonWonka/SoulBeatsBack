@@ -14,9 +14,8 @@ namespace BackendSoulBeats.API.Middleware
         public FirebaseAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            ISystemClock clock,
             TelemetryClient telemetryClient)
-            : base(options, logger, encoder, clock)
+            : base(options, logger, encoder)
         {
             _telemetryClient = telemetryClient;
         }

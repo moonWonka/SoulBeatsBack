@@ -2,8 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 using BackendSoulBeats.API.Middleware;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using BackendSoulBeats.Infra.Application.V1.Services;
@@ -117,7 +115,9 @@ namespace BackendSoulBeats.API
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
             services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
-        }        /// <summary>
+        }
+
+        /// <summary>
         /// Método para registrar las inyecciones de repositorios (por ejemplo, acceso a la base de datos).
         /// </summary>
         private void ConfigureRepositoryDependencies(IServiceCollection services)
