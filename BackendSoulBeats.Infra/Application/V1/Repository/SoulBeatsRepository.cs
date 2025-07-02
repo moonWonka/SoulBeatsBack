@@ -322,7 +322,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
             {
                 var operations = preferences.Select(p => (
                     query: QuerysSoulBeats.UpsertUserGenrePreference,
-                    parameters: (object)new { 
+                    parameters: (object?)new { 
                         FirebaseUid = firebaseUid, 
                         GenreId = p.genreId, 
                         PreferenceLevel = p.preferenceLevel 
@@ -367,7 +367,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
             {
                 var operations = preferences.Select(p => (
                     query: QuerysSoulBeats.UpsertUserArtistPreference,
-                    parameters: (object)new { 
+                    parameters: (object?)new { 
                         FirebaseUid = firebaseUid, 
                         ArtistId = p.artistId, 
                         PreferenceLevel = p.preferenceLevel 
