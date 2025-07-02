@@ -1,5 +1,6 @@
 using System.Net;
 using BackendSoulBeats.Domain.Application.V1.Repository;
+using BackendSoulBeats.API.Application.V1.ViewModel.Shared;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

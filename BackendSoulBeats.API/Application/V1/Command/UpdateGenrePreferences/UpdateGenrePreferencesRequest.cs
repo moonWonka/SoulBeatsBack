@@ -1,4 +1,5 @@
 using MediatR;
+using BackendSoulBeats.API.Application.V1.ViewModel.Shared;
 
 namespace BackendSoulBeats.API.Application.V1.Command.UpdateGenrePreferences
 {
@@ -6,12 +7,5 @@ namespace BackendSoulBeats.API.Application.V1.Command.UpdateGenrePreferences
     {
         public string FirebaseUid { get; set; }
         public List<GenrePreferenceDto> Preferences { get; set; } = new();
-    }
-
-    public class GenrePreferenceDto
-    {
-        public int GenreId { get; set; }
-        public string GenreName { get; set; }
-        public int PreferenceLevel { get; set; } // 1-5
     }
 }
