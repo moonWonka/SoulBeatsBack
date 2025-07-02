@@ -51,11 +51,18 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository.Querys
             VALUES (@FirebaseUid, @DisplayName, @Email, @RegisteredAt)";
 
         /// <summary>
+        /// Inserta un nuevo usuario en la base de datos con foto de perfil
+        /// </summary>
+        internal const string InsertUserWithProfilePicture = @"
+            INSERT INTO Users (FirebaseUid, DisplayName, Email, ProfilePictureUrl, RegisteredAt) 
+            VALUES (@FirebaseUid, @DisplayName, @Email, @ProfilePictureUrl, @RegisteredAt)";
+
+        /// <summary>
         /// Inserta un registro en el historial de acciones del usuario
         /// </summary>
         internal const string InsertUserHistory = @"
-            INSERT INTO UserHistory (FirebaseUid, Action, ActionDate) 
-            VALUES (@FirebaseUid, @Action, @ActionDate)";
+            INSERT INTO UserHistory (FirebaseUid, Action, ActionDate, Details) 
+            VALUES (@FirebaseUid, @Action, @ActionDate, @Details)";
 
         /// <summary>
         /// Verifica si un usuario existe por su Firebase UID

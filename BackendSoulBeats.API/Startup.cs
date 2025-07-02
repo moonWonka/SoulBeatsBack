@@ -65,7 +65,7 @@ namespace BackendSoulBeats.API
             });
 
             // Registro de MediatR
-            services.AddMediatR(typeof(Startup).Assembly);
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly));
 
             // Configuración del versionado de la API
             services.AddApiVersioning(options =>
