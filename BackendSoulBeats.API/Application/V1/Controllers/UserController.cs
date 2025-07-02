@@ -10,7 +10,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers{
     [ApiController]
     [ApiVersion("1.0")]
     [Route("User")]
-    // [Authorize(Policy = "FirebaseAuthenticated")] // Aplica la política de autorización
+    [Authorize(Policy = "FirebaseAuthenticated")] // Aplica la política de autorización
     [Produces("application/json")]
     public class UserController : ControllerBase
     {
@@ -81,9 +81,9 @@ namespace BackendSoulBeats.API.Application.V1.Controllers{
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
-        public async Task<IActionResult> GetIUser([FromRoute] long id)
+        public async Task<IActionResult> GetIUser([FromRoute] string id)
         {
-            GetUserInfoRequest request = new() { UserId = id.ToString() };            
+            GetUserInfoRequest request = new() { UserId = id };            
             // Puedes obtener el UID del usuario autenticado así:
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 

@@ -34,11 +34,22 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
 
         public async Task<bool> CreateUserAsync(string firebaseUid, string displayName, string email)
         {
+            return await CreateUserAsync(firebaseUid, displayName, email, null);
+        }
+
+        public async Task<bool> CreateUserAsync(string firebaseUid, string displayName, string email, string? profilePictureUrl)
+        {
             _logger?.LogDebug("🔄 Creando usuario en BD: {FirebaseUid}", firebaseUid);
 
             var affected = await ExecuteAsync(
-                QuerysSoulBeats.InsertUser,
-                new { FirebaseUid = firebaseUid, DisplayName = displayName, Email = email, RegisteredAt = DateTime.UtcNow },
+                QuerysSoulBeats.InsertUserWithProfilePicture,
+                new { 
+                    FirebaseUid = firebaseUid, 
+                    DisplayName = displayName, 
+                    Email = email, 
+                    ProfilePictureUrl = profilePictureUrl,
+                    RegisteredAt = DateTime.UtcNow 
+                },
                 useTransaction: true
             );
 
@@ -112,15 +123,47 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
         /// <summary>
         /// Verifica si un usuario existe por su Firebase UID
         /// </summary>
-        public async Task<bool> UserExistsAsync(string userId)
+        public async Task<bool> UserExistsAsync(string firebaseUid)
         {
             var count = await ExecuteScalarAsync<int>(
                 QuerysSoulBeats.CheckUserExists,
-                new { UserId = userId },
+                new { UserId = firebaseUid },
                 useTransaction: false
             );
 
             return count > 0;
+        }
+
+        /// <summary>
+        /// Inserta un registro en el historial de acciones del usuario
+        /// </summary>
+        public async Task<bool> InsertUserHistoryAsync(string firebaseUid, string action, string? details = null)
+        {
+            _logger?.LogDebug("🔄 Insertando historial para usuario: {FirebaseUid}, Acción: {Action}", firebaseUid, action);
+
+            var affected = await ExecuteAsync(
+                QuerysSoulBeats.InsertUserHistory,
+                new { 
+                    FirebaseUid = firebaseUid, 
+                    Action = action, 
+                    ActionDate = DateTime.UtcNow,
+                    Details = details
+                },
+                useTransaction: true
+            );
+
+            var success = affected > 0;
+
+            if (success)
+            {
+                _logger?.LogDebug("✅ Historial insertado exitosamente para usuario: {FirebaseUid}", firebaseUid);
+            }
+            else
+            {
+                _logger?.LogWarning("⚠️ No se pudo insertar historial para usuario: {FirebaseUid}", firebaseUid);
+            }
+
+            return success;
         }
 
         /// <summary>

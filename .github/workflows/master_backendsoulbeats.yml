@@ -93,5 +93,3 @@ jobs:
           app-name: 'backendSoulBeats'
           slot-name: 'Production'
           package: .
-        env:
-          SOULBEATSDB: ${{ secrets.AZURE_SOULBEATSDB }}
