@@ -1,6 +1,10 @@
 using System.Net;
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 using BackendSoulBeats.API.Application.V1.Query.GetGenres;
+using BackendSoulBeats.API.Application.V1.Query.GetArtistsByGenre;
+using BackendSoulBeats.API.Application.V1.Query.GetUserPreferences;
+using BackendSoulBeats.API.Application.V1.Command.UpdateGenrePreferences;
+using BackendSoulBeats.API.Application.V1.Command.UpdateArtistPreferences;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -244,69 +248,5 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, errorResponse);
             }
         }
-    }
-
-    // Temporary placeholder classes to make the code compile
-    // These will be moved to separate files in the next commit
-    public class GetArtistsByGenreRequest : IRequest<GetArtistsByGenreResponse> 
-    { 
-        public int GenreId { get; set; }
-    }
-    
-    public class GetArtistsByGenreResponse : BaseResponse 
-    { 
-        public List<ArtistDto> Artists { get; set; } = new();
-    }
-
-    public class GetUserPreferencesRequest : IRequest<GetUserPreferencesResponse> 
-    { 
-        public string FirebaseUid { get; set; }
-    }
-    
-    public class GetUserPreferencesResponse : BaseResponse 
-    { 
-        public List<GenrePreferenceDto> GenrePreferences { get; set; } = new();
-        public List<ArtistPreferenceDto> ArtistPreferences { get; set; } = new();
-    }
-
-    public class UpdateGenrePreferencesRequest : IRequest<UpdateGenrePreferencesResponse> 
-    { 
-        public string FirebaseUid { get; set; }
-        public List<GenrePreferenceDto> Preferences { get; set; } = new();
-    }
-    
-    public class UpdateGenrePreferencesResponse : BaseResponse { }
-
-    public class UpdateArtistPreferencesRequest : IRequest<UpdateArtistPreferencesResponse> 
-    { 
-        public string FirebaseUid { get; set; }
-        public List<ArtistPreferenceDto> Preferences { get; set; } = new();
-    }
-    
-    public class UpdateArtistPreferencesResponse : BaseResponse { }
-
-    // DTOs
-    public class ArtistDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string ImageUrl { get; set; }
-        public int GenreId { get; set; }
-        public string GenreName { get; set; }
-        public int Popularity { get; set; }
-    }
-
-    public class GenrePreferenceDto
-    {
-        public int GenreId { get; set; }
-        public string GenreName { get; set; }
-        public int PreferenceLevel { get; set; } // 1-5
-    }
-
-    public class ArtistPreferenceDto
-    {
-        public int ArtistId { get; set; }
-        public string ArtistName { get; set; }
-        public int PreferenceLevel { get; set; } // 1-5
     }
 }
