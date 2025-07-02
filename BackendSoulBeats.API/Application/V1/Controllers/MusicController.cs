@@ -1,5 +1,6 @@
 using System.Net;
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
+using BackendSoulBeats.API.Application.V1.Query.GetGenres;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -245,17 +246,13 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         }
     }
 
-    // Placeholder classes para los requests/responses que vamos a crear
-    public class GetGenresRequest : IRequest<GetGenresResponse> { }
-    public class GetGenresResponse : BaseResponse 
-    { 
-        public List<GenreDto> Genres { get; set; } = new();
-    }
-
+    // Temporary placeholder classes to make the code compile
+    // These will be moved to separate files in the next commit
     public class GetArtistsByGenreRequest : IRequest<GetArtistsByGenreResponse> 
     { 
         public int GenreId { get; set; }
     }
+    
     public class GetArtistsByGenreResponse : BaseResponse 
     { 
         public List<ArtistDto> Artists { get; set; } = new();
@@ -265,6 +262,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
     { 
         public string FirebaseUid { get; set; }
     }
+    
     public class GetUserPreferencesResponse : BaseResponse 
     { 
         public List<GenrePreferenceDto> GenrePreferences { get; set; } = new();
@@ -276,6 +274,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         public string FirebaseUid { get; set; }
         public List<GenrePreferenceDto> Preferences { get; set; } = new();
     }
+    
     public class UpdateGenrePreferencesResponse : BaseResponse { }
 
     public class UpdateArtistPreferencesRequest : IRequest<UpdateArtistPreferencesResponse> 
@@ -283,18 +282,10 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         public string FirebaseUid { get; set; }
         public List<ArtistPreferenceDto> Preferences { get; set; } = new();
     }
+    
     public class UpdateArtistPreferencesResponse : BaseResponse { }
 
     // DTOs
-    public class GenreDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string IconUrl { get; set; }
-        public int DisplayOrder { get; set; }
-    }
-
     public class ArtistDto
     {
         public int Id { get; set; }
