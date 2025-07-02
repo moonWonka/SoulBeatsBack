@@ -2,8 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 using BackendSoulBeats.API.Middleware;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using BackendSoulBeats.Infra.Application.V1.Services;
@@ -65,7 +63,7 @@ namespace BackendSoulBeats.API
             });
 
             // Registro de MediatR
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly));
+            services.AddMediatR(typeof(Startup).Assembly);
 
             // Configuración del versionado de la API
             services.AddApiVersioning(options =>
@@ -84,6 +82,10 @@ namespace BackendSoulBeats.API
                 options.GroupNameFormat = "'v'VVV";  // Ejemplo: v1
                 options.SubstituteApiVersionInUrl = true;
             });
+
+            // Configuración de autenticación
+            services.AddAuthentication("Firebase")
+                .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, FirebaseAuthenticationHandler>("Firebase", options => { });
 
             // Configuración de políticas de autorización
             services.AddAuthorization(options =>
@@ -113,7 +115,9 @@ namespace BackendSoulBeats.API
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
             services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
-        }        /// <summary>
+        }
+
+        /// <summary>
         /// Método para registrar las inyecciones de repositorios (por ejemplo, acceso a la base de datos).
         /// </summary>
         private void ConfigureRepositoryDependencies(IServiceCollection services)
@@ -148,9 +152,7 @@ namespace BackendSoulBeats.API
 
             app.UseRouting();
 
-            app.UseAuthentication(); // Autenticación JWT de .NET Core
-
-            // app.UseMiddleware<FirebaseAuthenticationMiddleware>(); // Middleware de Firebase
+            app.UseAuthentication(); // Autenticación Firebase
 
             app.UseAuthorization();
 
