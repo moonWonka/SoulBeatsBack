@@ -22,5 +22,11 @@ namespace BackendSoulBeats.Domain.Application.V1.Repository
         Task<IEnumerable<UserArtistPreferenceModel>> GetUserArtistPreferencesAsync(string firebaseUid);
         Task<bool> UpdateUserGenrePreferencesAsync(string firebaseUid, List<(int genreId, int preferenceLevel)> preferences);
         Task<bool> UpdateUserArtistPreferencesAsync(string firebaseUid, List<(int artistId, int preferenceLevel)> preferences);
+
+        // Spotify integration
+        Task<bool> SaveSpotifyTokenAsync(string firebaseUid, SpotifyTokenModel token);
+        Task<SpotifyTokenModel> GetSpotifyTokenAsync(string firebaseUid);
+        Task<bool> UpdateSpotifyTokenAsync(string firebaseUid, SpotifyTokenModel token);
+        Task<bool> DeleteSpotifyTokenAsync(string firebaseUid);
     }
 }
