@@ -146,5 +146,37 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
                 return false;
             }
         }
+
+        public async Task<SpotifyUserProfileModel> GetUserProfileAsync(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            var response = await _httpClient.GetAsync($"{_spotifyApiBaseUrl}/me");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to get user profile: {errorContent}");
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var userResponse = JsonSerializer.Deserialize<SpotifyUserResponse>(responseContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return new SpotifyUserProfileModel
+            {
+                Id = userResponse.Id,
+                DisplayName = userResponse.Display_Name,
+                Email = userResponse.Email,
+                Country = userResponse.Country,
+                Product = userResponse.Product,
+                Followers = userResponse.Followers?.Total ?? 0,
+                ImageUrl = userResponse.Images?.FirstOrDefault()?.Url,
+                ExternalUrl = userResponse.External_Urls?.Spotify
+            };
+        }
     }
 }
