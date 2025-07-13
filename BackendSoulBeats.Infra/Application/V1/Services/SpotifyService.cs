@@ -1,4 +1,4 @@
-using BackendSoulBeats.Domain.Application.V1.Model.Respository;
+using BackendSoulBeats.Domain.Application.V1.Model.SpotifyService;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text;
@@ -147,58 +147,36 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
             }
         }
 
-        private class SpotifyTokenResponse
+        public async Task<SpotifyUserProfileModel> GetUserProfileAsync(string accessToken)
         {
-            public string AccessToken { get; set; }
-            public string TokenType { get; set; }
-            public string Scope { get; set; }
-            public int ExpiresIn { get; set; }
-            public string RefreshToken { get; set; }
-        }
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-        private class SpotifyPlaylistsResponse
-        {
-            public List<SpotifyPlaylistItem> Items { get; set; } = new List<SpotifyPlaylistItem>();
-            public int Total { get; set; }
-            public int Limit { get; set; }
-            public int Offset { get; set; }
-        }
+            var response = await _httpClient.GetAsync($"{_spotifyApiBaseUrl}/me");
 
-        private class SpotifyPlaylistItem
-        {
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public bool Public { get; set; }
-            public bool Collaborative { get; set; }
-            public string SnapshotId { get; set; }
-            public SpotifyTracksInfo Tracks { get; set; }
-            public SpotifyExternalUrls ExternalUrls { get; set; }
-            public List<SpotifyImage> Images { get; set; }
-            public SpotifyOwner Owner { get; set; }
-        }
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to get user profile: {errorContent}");
+            }
 
-        private class SpotifyTracksInfo
-        {
-            public int Total { get; set; }
-        }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var userResponse = JsonSerializer.Deserialize<SpotifyUserResponse>(responseContent, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
 
-        private class SpotifyExternalUrls
-        {
-            public string Spotify { get; set; }
-        }
-
-        private class SpotifyImage
-        {
-            public string Url { get; set; }
-            public int Height { get; set; }
-            public int Width { get; set; }
-        }
-
-        private class SpotifyOwner
-        {
-            public string DisplayName { get; set; }
-            public string Id { get; set; }
+            return new SpotifyUserProfileModel
+            {
+                Id = userResponse.Id,
+                DisplayName = userResponse.Display_Name,
+                Email = userResponse.Email,
+                Country = userResponse.Country,
+                Product = userResponse.Product,
+                Followers = userResponse.Followers?.Total ?? 0,
+                ImageUrl = userResponse.Images?.FirstOrDefault()?.Url,
+                ExternalUrl = userResponse.External_Urls?.Spotify
+            };
         }
     }
 }

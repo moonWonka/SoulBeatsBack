@@ -1,4 +1,4 @@
-using BackendSoulBeats.Domain.Application.V1.Model.Respository;
+using BackendSoulBeats.Domain.Application.V1.Model.SpotifyService;
 
 namespace BackendSoulBeats.Domain.Application.V1.Services
 {
@@ -8,5 +8,6 @@ namespace BackendSoulBeats.Domain.Application.V1.Services
         Task<SpotifyTokenModel> RefreshTokenAsync(string refreshToken);
         Task<List<SpotifyPlaylistModel>> GetUserPlaylistsAsync(string accessToken, int limit = 20, int offset = 0);
         Task<bool> ValidateTokenAsync(string accessToken);
+        Task<SpotifyUserProfileModel> GetUserProfileAsync(string accessToken);
     }
 }

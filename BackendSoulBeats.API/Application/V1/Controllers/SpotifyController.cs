@@ -1,5 +1,6 @@
 using BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange;
 using BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists;
+using BackendSoulBeats.API.Application.V1.Query.GetSpotifyStatus;
 using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 using BackendSoulBeats.API.Middleware;
 using MediatR;
@@ -108,6 +109,50 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
             {
                 (int)HttpStatusCode.OK => Ok(response),
                 (int)HttpStatusCode.BadRequest => BadRequest(response),
+                (int)HttpStatusCode.Unauthorized => Unauthorized(response),
+                (int)HttpStatusCode.InternalServerError => StatusCode((int)HttpStatusCode.InternalServerError, response),
+                _ => StatusCode(response.StatusCode, response)
+            };
+        }
+
+        /// <summary>
+        /// Obtiene el estado de conexión de Spotify del usuario
+        /// </summary>
+        /// <returns>Estado de la conexión y información del perfil si está conectado</returns>
+        [HttpGet("status")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(GetSpotifyStatusResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetSpotifyStatus()
+        {
+            // Obtener el UID del usuario autenticado desde Firebase
+            var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
+            
+            if (string.IsNullOrEmpty(firebaseUid))
+            {
+                return Unauthorized(new GetSpotifyStatusResponse
+                {
+                    StatusCode = 401,
+                    Description = "UNAUTHORIZED",
+                    UserFriendly = "User not authenticated",
+                    IsConnected = false,
+                    TokenValid = false
+                });
+            }
+
+            var request = new GetSpotifyStatusRequest
+            {
+                FirebaseUid = firebaseUid
+            };
+
+            // Enviar la solicitud al handler a través de MediatR
+            var response = await _mediator.Send(request);
+            
+            // Devolver la respuesta con el código de estado indicado en la propiedad StatusCode
+            return response.StatusCode switch
+            {
+                (int)HttpStatusCode.OK => Ok(response),
                 (int)HttpStatusCode.Unauthorized => Unauthorized(response),
                 (int)HttpStatusCode.InternalServerError => StatusCode((int)HttpStatusCode.InternalServerError, response),
                 _ => StatusCode(response.StatusCode, response)

@@ -24,6 +24,9 @@ namespace BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange
                 var tokenModel = await _spotifyService.ExchangeCodeForTokenAsync(request.Code, request.RedirectUri);
                 tokenModel.UserId = request.FirebaseUid;
 
+                // Get user profile information
+                var userProfile = await _spotifyService.GetUserProfileAsync(tokenModel.AccessToken);
+
                 // Save token to database
                 var saved = await _repository.SaveSpotifyTokenAsync(request.FirebaseUid, tokenModel);
 
@@ -43,7 +46,15 @@ namespace BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange
                     Description = "SUCCESS",
                     UserFriendly = "Spotify account connected successfully",
                     IsConnected = true,
-                    ExpiresAt = tokenModel.ExpiresAt
+                    SpotifyUserId = userProfile.Id,
+                    ExpiresAt = tokenModel.ExpiresAt,
+                    DisplayName = userProfile.DisplayName,
+                    Email = userProfile.Email,
+                    Country = userProfile.Country,
+                    Product = userProfile.Product,
+                    Followers = userProfile.Followers,
+                    ImageUrl = userProfile.ImageUrl,
+                    ExternalUrl = userProfile.ExternalUrl
                 };
             }
             catch (Exception)
