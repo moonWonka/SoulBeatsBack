@@ -1,7 +1,6 @@
 using BackendSoulBeats.Domain.Application.V1.Repository;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 
 namespace BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange
 {

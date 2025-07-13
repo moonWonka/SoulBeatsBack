@@ -37,23 +37,17 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> ExchangeSpotifyToken([FromBody] PostSpotifyTokenExchangeRequest request)
         {
-            // Obtener el UID del usuario autenticado desde Firebase
-            var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
-            
-            if (string.IsNullOrEmpty(firebaseUid))
+
+            if (request == null)
             {
-                return Unauthorized(new PostSpotifyTokenExchangeResponse
+                return BadRequest(new BaseResponse
                 {
-                    StatusCode = 401,
-                    Description = "UNAUTHORIZED",
-                    UserFriendly = "User not authenticated"
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Description = "INVALID_REQUEST",
+                    UserFriendly = "Invalid request data"
                 });
             }
-
-            // Asignar el FirebaseUid al request
-            request.FirebaseUid = firebaseUid;
-
-            // Enviar la solicitud al handler a través de MediatR
+            
             var response = await _mediator.Send(request);
             
             // Devolver la respuesta con el código de estado indicado en la propiedad StatusCode
