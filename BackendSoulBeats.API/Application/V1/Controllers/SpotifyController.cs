@@ -47,7 +47,7 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
                     UserFriendly = "Invalid request data"
                 });
             }
-            
+
             var response = await _mediator.Send(request);
             
             // Devolver la respuesta con el código de estado indicado en la propiedad StatusCode
@@ -75,24 +75,14 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetSpotifyPlaylists([FromQuery] int limit = 20, [FromQuery] int offset = 0)
         {
-            // Obtener el UID del usuario autenticado desde Firebase
-            var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
-            
-            if (string.IsNullOrEmpty(firebaseUid))
-            {
-                return Unauthorized(new GetSpotifyPlaylistsResponse
-                {
-                    StatusCode = 401,
-                    Description = "UNAUTHORIZED",
-                    UserFriendly = "User not authenticated"
-                });
-            }
+            // Obtener el UID del usuario autenticado desde los Claims
+            var firebaseUid = User.FindFirst("firebase_uid")?.Value;
 
             var request = new GetSpotifyPlaylistsRequest
             {
                 Limit = Math.Max(1, Math.Min(50, limit)), // Limitar entre 1 y 50
                 Offset = Math.Max(0, offset),
-                FirebaseUid = firebaseUid
+                FirebaseUid = firebaseUid ?? string.Empty
             };
 
             // Enviar la solicitud al handler a través de MediatR
@@ -120,24 +110,12 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> GetSpotifyStatus()
         {
-            // Obtener el UID del usuario autenticado desde Firebase
-            var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
-            
-            if (string.IsNullOrEmpty(firebaseUid))
-            {
-                return Unauthorized(new GetSpotifyStatusResponse
-                {
-                    StatusCode = 401,
-                    Description = "UNAUTHORIZED",
-                    UserFriendly = "User not authenticated",
-                    IsConnected = false,
-                    TokenValid = false
-                });
-            }
+            // Obtener el UID del usuario autenticado desde los Claims
+            var firebaseUid = User.FindFirst("firebase_uid")?.Value;
 
             var request = new GetSpotifyStatusRequest
             {
-                FirebaseUid = firebaseUid
+                FirebaseUid = firebaseUid ?? string.Empty
             };
 
             // Enviar la solicitud al handler a través de MediatR
@@ -158,33 +136,21 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         /// </summary>
         /// <returns>Respuesta indicando si la desconexión fue exitosa</returns>
         [HttpDelete("disconnect")]
-        public async Task<ActionResult> DisconnectSpotify()
+        public Task<ActionResult> DisconnectSpotify()
         {
-            // Obtener el UID del usuario autenticado desde Firebase
-            var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
-            
-            if (string.IsNullOrEmpty(firebaseUid))
-            {
-                return Unauthorized(new
-                {
-                    Header = new
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "User not authenticated"
-                    }
-                });
-            }
+            // Obtener el UID del usuario autenticado desde los Claims
+            var firebaseUid = User.FindFirst("firebase_uid")?.Value;
 
             // TODO: Implementar handler para desconectar Spotify
             // Por ahora retornamos not implemented
-            return StatusCode(501, new
+            return Task.FromResult<ActionResult>(StatusCode(501, new
             {
                 Header = new
                 {
                     Code = "NOT_IMPLEMENTED",
                     Message = "Disconnect functionality not yet implemented"
                 }
-            });
+            }));
         }
     }
 }
