@@ -127,3 +127,25 @@ CREATE INDEX IX_UserMatches_User1 ON UserMatches(User1Uid, IsActive);
 CREATE INDEX IX_UserMatches_User2 ON UserMatches(User2Uid, IsActive);
 CREATE INDEX IX_UserMusicPreferences_User ON UserMusicPreferences(FirebaseUid);
 CREATE INDEX IX_UserArtistPreferences_User ON UserArtistPreferences(FirebaseUid);
+
+-- =============================================
+-- SPOTIFY INTEGRATION TABLES
+-- =============================================
+
+-- Tabla para almacenar tokens de Spotify por usuario
+CREATE TABLE SpotifyTokens (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    FirebaseUid NVARCHAR(128) NOT NULL,
+    AccessToken NVARCHAR(500) NOT NULL,
+    RefreshToken NVARCHAR(500) NULL,
+    ExpiresAt DATETIME NOT NULL,
+    TokenType NVARCHAR(50) DEFAULT 'Bearer',
+    Scope NVARCHAR(500) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_SpotifyTokens_Users FOREIGN KEY (FirebaseUid) REFERENCES Users(FirebaseUid) ON DELETE CASCADE,
+    CONSTRAINT UQ_SpotifyTokens_User UNIQUE (FirebaseUid)
+);
+
+-- Índice para búsquedas por usuario
+CREATE INDEX IX_SpotifyTokens_FirebaseUid ON SpotifyTokens(FirebaseUid);
