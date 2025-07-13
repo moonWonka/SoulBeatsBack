@@ -1,25 +1,26 @@
 using BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange;
 using BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists;
+using BackendSoulBeats.API.Application.V1.ViewModel.Common;
 using BackendSoulBeats.API.Middleware;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace BackendSoulBeats.API.Application.V1.Controllers
 {
     [ApiController]
-    [Route("api/v1/[controller]")]
-    [Authorize]
+    [ApiVersion("1.0")]
+    [Route("Spotify")]
+    [Authorize(Policy = "FirebaseAuthenticated")]
+    [Produces("application/json")]
     public class SpotifyController : ControllerBase
     {
-        private readonly PostSpotifyTokenExchangeHandler _tokenExchangeHandler;
-        private readonly GetSpotifyPlaylistsHandler _playlistsHandler;
+        private readonly IMediator _mediator;
 
-        public SpotifyController(
-            PostSpotifyTokenExchangeHandler tokenExchangeHandler,
-            GetSpotifyPlaylistsHandler playlistsHandler)
+        public SpotifyController(IMediator mediator)
         {
-            _tokenExchangeHandler = tokenExchangeHandler;
-            _playlistsHandler = playlistsHandler;
+            _mediator = mediator;
         }
 
         /// <summary>
@@ -28,8 +29,12 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         /// <param name="request">Código de autorización y datos de redirección</param>
         /// <returns>Respuesta indicando si la conexión fue exitosa</returns>
         [HttpPost("token-exchange")]
-        public async Task<ActionResult<PostSpotifyTokenExchangeResponse>> ExchangeSpotifyToken(
-            [FromBody] PostSpotifyTokenExchangeRequest request)
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(PostSpotifyTokenExchangeResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> ExchangeSpotifyToken([FromBody] PostSpotifyTokenExchangeRequest request)
         {
             // Obtener el UID del usuario autenticado desde Firebase
             var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
@@ -38,22 +43,27 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
             {
                 return Unauthorized(new PostSpotifyTokenExchangeResponse
                 {
-                    Header = new ViewModel.Common.HeaderViewModel
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "User not authenticated"
-                    }
+                    StatusCode = 401,
+                    Description = "UNAUTHORIZED",
+                    UserFriendly = "User not authenticated"
                 });
             }
 
-            var response = await _tokenExchangeHandler.Handle(request, firebaseUid);
+            // Asignar el FirebaseUid al request
+            request.FirebaseUid = firebaseUid;
+
+            // Enviar la solicitud al handler a través de MediatR
+            var response = await _mediator.Send(request);
             
-            if (response.Header.Code == "SUCCESS")
+            // Devolver la respuesta con el código de estado indicado en la propiedad StatusCode
+            return response.StatusCode switch
             {
-                return Ok(response);
-            }
-            
-            return BadRequest(response);
+                (int)HttpStatusCode.OK => Ok(response),
+                (int)HttpStatusCode.BadRequest => BadRequest(response),
+                (int)HttpStatusCode.Unauthorized => Unauthorized(response),
+                (int)HttpStatusCode.InternalServerError => StatusCode((int)HttpStatusCode.InternalServerError, response),
+                _ => StatusCode(response.StatusCode, response)
+            };
         }
 
         /// <summary>
@@ -63,9 +73,12 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
         /// <param name="offset">Número de playlists a omitir (por defecto 0)</param>
         /// <returns>Lista de playlists del usuario</returns>
         [HttpGet("playlists")]
-        public async Task<ActionResult<GetSpotifyPlaylistsResponse>> GetSpotifyPlaylists(
-            [FromQuery] int limit = 20, 
-            [FromQuery] int offset = 0)
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(GetSpotifyPlaylistsResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.InternalServerError)]
+        public async Task<IActionResult> GetSpotifyPlaylists([FromQuery] int limit = 20, [FromQuery] int offset = 0)
         {
             // Obtener el UID del usuario autenticado desde Firebase
             var firebaseUid = HttpContext.Items["FirebaseUID"]?.ToString();
@@ -74,33 +87,31 @@ namespace BackendSoulBeats.API.Application.V1.Controllers
             {
                 return Unauthorized(new GetSpotifyPlaylistsResponse
                 {
-                    Header = new ViewModel.Common.HeaderViewModel
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "User not authenticated"
-                    }
+                    StatusCode = 401,
+                    Description = "UNAUTHORIZED",
+                    UserFriendly = "User not authenticated"
                 });
             }
 
             var request = new GetSpotifyPlaylistsRequest
             {
                 Limit = Math.Max(1, Math.Min(50, limit)), // Limitar entre 1 y 50
-                Offset = Math.Max(0, offset)
+                Offset = Math.Max(0, offset),
+                FirebaseUid = firebaseUid
             };
 
-            var response = await _playlistsHandler.Handle(request, firebaseUid);
+            // Enviar la solicitud al handler a través de MediatR
+            var response = await _mediator.Send(request);
             
-            if (response.Header.Code == "SUCCESS")
+            // Devolver la respuesta con el código de estado indicado en la propiedad StatusCode
+            return response.StatusCode switch
             {
-                return Ok(response);
-            }
-            
-            if (response.Header.Code == "SPOTIFY_NOT_CONNECTED")
-            {
-                return BadRequest(response);
-            }
-            
-            return StatusCode(500, response);
+                (int)HttpStatusCode.OK => Ok(response),
+                (int)HttpStatusCode.BadRequest => BadRequest(response),
+                (int)HttpStatusCode.Unauthorized => Unauthorized(response),
+                (int)HttpStatusCode.InternalServerError => StatusCode((int)HttpStatusCode.InternalServerError, response),
+                _ => StatusCode(response.StatusCode, response)
+            };
         }
 
         /// <summary>
