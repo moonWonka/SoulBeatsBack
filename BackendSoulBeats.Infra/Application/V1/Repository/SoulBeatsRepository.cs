@@ -402,13 +402,16 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
 
         /// <summary>
         /// Guarda el token de Spotify del usuario
+        /// COMENTADO: Implementación de BD hasta crear las tablas
         /// </summary>
         public async Task<bool> SaveSpotifyTokenAsync(string firebaseUid, SpotifyTokenModel token)
         {
-            _logger?.LogDebug("🔄 Guardando token de Spotify para usuario: {FirebaseUid}", firebaseUid);
+            _logger?.LogDebug("🔄 [SIMULADO] Guardando token de Spotify para usuario: {FirebaseUid}", firebaseUid);
 
             try
             {
+                // TODO: Descomentar cuando las tablas existan
+                /*
                 var affected = await ExecuteAsync(
                     QuerysSoulBeats.UpsertSpotifyToken,
                     new { 
@@ -423,7 +426,13 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
                 );
 
                 var success = affected > 0;
-                _logger?.LogDebug("✅ Token de Spotify guardado para {FirebaseUid}: {Success}", firebaseUid, success);
+                */
+                
+                // Simulación temporal - siempre devuelve success
+                await Task.Delay(10); // Simula operación async
+                bool success = true;
+                
+                _logger?.LogDebug("✅ [SIMULADO] Token de Spotify guardado para {FirebaseUid}: {Success}", firebaseUid, success);
                 return success;
             }
             catch (Exception ex)
@@ -435,30 +444,41 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
 
         /// <summary>
         /// Obtiene el token de Spotify del usuario
+        /// COMENTADO: Implementación de BD hasta crear las tablas
         /// </summary>
         public async Task<SpotifyTokenModel> GetSpotifyTokenAsync(string firebaseUid)
         {
-            _logger?.LogDebug("🔍 Obteniendo token de Spotify para usuario: {FirebaseUid}", firebaseUid);
+            _logger?.LogDebug("🔍 [SIMULADO] Obteniendo token de Spotify para usuario: {FirebaseUid}", firebaseUid);
 
+            // TODO: Descomentar cuando las tablas existan
+            /*
             var token = await QuerySingleAsync<SpotifyTokenModel>(
                 QuerysSoulBeats.GetSpotifyToken,
                 new { FirebaseUid = firebaseUid },
                 useTransaction: false
             );
+            */
+            
+            // Simulación temporal - devuelve null (no encontrado)
+            await Task.Delay(10); // Simula operación async
+            SpotifyTokenModel token = null;
 
-            _logger?.LogDebug("✅ Token de Spotify obtenido para {FirebaseUid}: {Found}", firebaseUid, token != null);
+            _logger?.LogDebug("✅ [SIMULADO] Token de Spotify obtenido para {FirebaseUid}: {Found}", firebaseUid, token != null);
             return token;
         }
 
         /// <summary>
         /// Actualiza el token de Spotify del usuario
+        /// COMENTADO: Implementación de BD hasta crear las tablas
         /// </summary>
         public async Task<bool> UpdateSpotifyTokenAsync(string firebaseUid, SpotifyTokenModel token)
         {
-            _logger?.LogDebug("🔄 Actualizando token de Spotify para usuario: {FirebaseUid}", firebaseUid);
+            _logger?.LogDebug("🔄 [SIMULADO] Actualizando token de Spotify para usuario: {FirebaseUid}", firebaseUid);
 
             try
             {
+                // TODO: Descomentar cuando las tablas existan
+                /*
                 var affected = await ExecuteAsync(
                     QuerysSoulBeats.UpdateSpotifyToken,
                     new { 
@@ -473,7 +493,13 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository
                 );
 
                 var success = affected > 0;
-                _logger?.LogDebug("✅ Token de Spotify actualizado para {FirebaseUid}: {Success}", firebaseUid, success);
+                */
+                
+                // Simulación temporal - siempre devuelve success
+                await Task.Delay(10); // Simula operación async
+                bool success = true;
+                
+                _logger?.LogDebug("✅ [SIMULADO] Token de Spotify actualizado para {FirebaseUid}: {Success}", firebaseUid, success);
                 return success;
             }
             catch (Exception ex)

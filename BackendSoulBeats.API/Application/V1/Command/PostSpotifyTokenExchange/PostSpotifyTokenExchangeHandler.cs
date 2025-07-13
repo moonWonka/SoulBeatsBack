@@ -27,17 +27,17 @@ namespace BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange
                 var userProfile = await _spotifyService.GetUserProfileAsync(tokenModel.AccessToken);
 
                 // Save token to database
-                var saved = await _repository.SaveSpotifyTokenAsync(request.FirebaseUid, tokenModel);
+                // var saved = await _repository.SaveSpotifyTokenAsync(request.FirebaseUid, tokenModel);
 
-                if (!saved)
-                {
-                    return new PostSpotifyTokenExchangeResponse
-                    {
-                        StatusCode = 500,
-                        Description = "SPOTIFY_TOKEN_SAVE_FAILED",
-                        UserFriendly = "Failed to save Spotify token"
-                    };
-                }
+                // if (!saved)
+                // {
+                //     return new PostSpotifyTokenExchangeResponse
+                //     {
+                //         StatusCode = 500,
+                //         Description = "SPOTIFY_TOKEN_SAVE_FAILED",
+                //         UserFriendly = "Failed to save Spotify token"
+                //     };
+                // }
 
                 return new PostSpotifyTokenExchangeResponse
                 {
