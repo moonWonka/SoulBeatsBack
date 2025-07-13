@@ -1,4 +1,4 @@
-using BackendSoulBeats.Domain.Application.V1.Model.Respository;
+using BackendSoulBeats.Domain.Application.V1.Model.SpotifyService;
 
 namespace BackendSoulBeats.Domain.Application.V1.Services
 {

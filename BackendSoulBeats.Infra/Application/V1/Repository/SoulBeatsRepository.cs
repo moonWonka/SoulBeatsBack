@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using BackendSoulBeats.Domain.Application.V1.Repository;
 using BackendSoulBeats.Domain.Application.V1.Model.Respository;
+using BackendSoulBeats.Domain.Application.V1.Model.SpotifyService;
 using BackendSoulBeats.Infra.Application.V1.Repository.Querys;
 
 namespace BackendSoulBeats.Infra.Application.V1.Repository

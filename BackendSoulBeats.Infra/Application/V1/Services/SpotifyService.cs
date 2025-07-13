@@ -1,4 +1,4 @@
-using BackendSoulBeats.Domain.Application.V1.Model.Respository;
+using BackendSoulBeats.Domain.Application.V1.Model.SpotifyService;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using Microsoft.Extensions.Configuration;
 using System.Text;
@@ -145,60 +145,6 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
             {
                 return false;
             }
-        }
-
-        private class SpotifyTokenResponse
-        {
-            public string AccessToken { get; set; }
-            public string TokenType { get; set; }
-            public string Scope { get; set; }
-            public int ExpiresIn { get; set; }
-            public string RefreshToken { get; set; }
-        }
-
-        private class SpotifyPlaylistsResponse
-        {
-            public List<SpotifyPlaylistItem> Items { get; set; } = new List<SpotifyPlaylistItem>();
-            public int Total { get; set; }
-            public int Limit { get; set; }
-            public int Offset { get; set; }
-        }
-
-        private class SpotifyPlaylistItem
-        {
-            public string Id { get; set; }
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public bool Public { get; set; }
-            public bool Collaborative { get; set; }
-            public string SnapshotId { get; set; }
-            public SpotifyTracksInfo Tracks { get; set; }
-            public SpotifyExternalUrls ExternalUrls { get; set; }
-            public List<SpotifyImage> Images { get; set; }
-            public SpotifyOwner Owner { get; set; }
-        }
-
-        private class SpotifyTracksInfo
-        {
-            public int Total { get; set; }
-        }
-
-        private class SpotifyExternalUrls
-        {
-            public string Spotify { get; set; }
-        }
-
-        private class SpotifyImage
-        {
-            public string Url { get; set; }
-            public int Height { get; set; }
-            public int Width { get; set; }
-        }
-
-        private class SpotifyOwner
-        {
-            public string DisplayName { get; set; }
-            public string Id { get; set; }
         }
     }
 }
