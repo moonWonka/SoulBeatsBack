@@ -1,6 +1,7 @@
 using BackendSoulBeats.Domain.Application.V1.Model.SpotifyService;
 using BackendSoulBeats.Domain.Application.V1.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 
@@ -10,36 +11,71 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<SpotifyService> _logger;
         private readonly string _clientId;
         private readonly string _clientSecret;
         private readonly string _spotifyApiBaseUrl = "https://api.spotify.com/v1";
         private readonly string _spotifyTokenUrl = "https://accounts.spotify.com/api/token";
 
-        public SpotifyService(HttpClient httpClient, IConfiguration configuration)
+        public SpotifyService(HttpClient httpClient, IConfiguration configuration, ILogger<SpotifyService> logger)
         {
             _httpClient = httpClient;
             _configuration = configuration;
+            _logger = logger;
             _clientId = _configuration["Spotify:ClientId"];
             _clientSecret = _configuration["Spotify:ClientSecret"];
         }
 
         public async Task<SpotifyTokenModel> ExchangeCodeForTokenAsync(string code, string redirectUri)
         {
+            // Validar parámetros de entrada
+            if (string.IsNullOrEmpty(code))
+                throw new ArgumentException("Authorization code cannot be null or empty", nameof(code));
+            if (string.IsNullOrEmpty(redirectUri))
+                throw new ArgumentException("Redirect URI cannot be null or empty", nameof(redirectUri));
+
+            // Crear el Basic Authentication header según la documentación de Spotify
+            var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
+
+            // Crear el request body según la documentación
             var tokenRequest = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("grant_type", "authorization_code"),
                 new KeyValuePair<string, string>("code", code),
-                new KeyValuePair<string, string>("redirect_uri", redirectUri),
-                new KeyValuePair<string, string>("client_id", _clientId),
-                new KeyValuePair<string, string>("client_secret", _clientSecret)
+                new KeyValuePair<string, string>("redirect_uri", redirectUri)
             });
+
+            // Configurar headers según la documentación de Spotify
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {credentials}");
+            
+            // Establecer Content-Type para el request
+            tokenRequest.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
             var response = await _httpClient.PostAsync(_spotifyTokenUrl, tokenRequest);
             
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to exchange code for token: {errorContent}");
+                
+                // Intentar deserializar el error de Spotify para obtener más detalles
+                try
+                {
+                    var errorResponse = JsonSerializer.Deserialize<SpotifyErrorResponse>(errorContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    
+                    var errorMessage = errorResponse?.Error ?? "unknown_error";
+                    var errorDescription = errorResponse?.ErrorDescription ?? errorContent;
+                    
+                    throw new Exception($"Spotify API Error: {errorMessage} - {errorDescription}");
+                }
+                catch (JsonException)
+                {
+                    // Si no se puede deserializar, usar el contenido raw
+                    throw new Exception($"Failed to exchange code for token: {errorContent}");
+                }
             }
 
             var responseContent = await response.Content.ReadAsStringAsync();
@@ -62,20 +98,46 @@ namespace BackendSoulBeats.Infra.Application.V1.Services
 
         public async Task<SpotifyTokenModel> RefreshTokenAsync(string refreshToken)
         {
+            // Crear el Basic Authentication header
+            var credentials = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
+
             var tokenRequest = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("grant_type", "refresh_token"),
-                new KeyValuePair<string, string>("refresh_token", refreshToken),
-                new KeyValuePair<string, string>("client_id", _clientId),
-                new KeyValuePair<string, string>("client_secret", _clientSecret)
+                new KeyValuePair<string, string>("refresh_token", refreshToken)
             });
+
+            // Configurar headers según la documentación de Spotify
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {credentials}");
+            
+            // Establecer Content-Type para el request
+            tokenRequest.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
             var response = await _httpClient.PostAsync(_spotifyTokenUrl, tokenRequest);
             
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Failed to refresh token: {errorContent}");
+                
+                // Intentar deserializar el error de Spotify para obtener más detalles
+                try
+                {
+                    var errorResponse = JsonSerializer.Deserialize<SpotifyErrorResponse>(errorContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    
+                    var errorMessage = errorResponse?.Error ?? "unknown_error";
+                    var errorDescription = errorResponse?.ErrorDescription ?? errorContent;
+                    
+                    throw new Exception($"Spotify API Error: {errorMessage} - {errorDescription}");
+                }
+                catch (JsonException)
+                {
+                    // Si no se puede deserializar, usar el contenido raw
+                    throw new Exception($"Failed to refresh token: {errorContent}");
+                }
             }
 
             var responseContent = await response.Content.ReadAsStringAsync();
