@@ -1,9 +1,10 @@
 using BackendSoulBeats.Domain.Application.V1.Repository;
 using BackendSoulBeats.Domain.Application.V1.Services;
+using MediatR;
 
 namespace BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists
 {
-    public class GetSpotifyPlaylistsHandler
+    public class GetSpotifyPlaylistsHandler : IRequestHandler<GetSpotifyPlaylistsRequest, GetSpotifyPlaylistsResponse>
     {
         private readonly ISoulBeatsRepository _repository;
         private readonly ISpotifyService _spotifyService;
@@ -14,22 +15,20 @@ namespace BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists
             _spotifyService = spotifyService;
         }
 
-        public async Task<GetSpotifyPlaylistsResponse> Handle(GetSpotifyPlaylistsRequest request, string firebaseUid)
+        public async Task<GetSpotifyPlaylistsResponse> Handle(GetSpotifyPlaylistsRequest request, CancellationToken cancellationToken)
         {
             try
             {
                 // Get stored Spotify token
-                var tokenModel = await _repository.GetSpotifyTokenAsync(firebaseUid);
+                var tokenModel = await _repository.GetSpotifyTokenAsync(request.FirebaseUid);
 
                 if (tokenModel == null)
                 {
                     return new GetSpotifyPlaylistsResponse
                     {
-                        Header = new ViewModel.Common.HeaderViewModel
-                        {
-                            Code = "SPOTIFY_NOT_CONNECTED",
-                            Message = "Spotify account not connected"
-                        }
+                        StatusCode = 400,
+                        Description = "SPOTIFY_NOT_CONNECTED",
+                        UserFriendly = "Spotify account not connected"
                     };
                 }
 
@@ -39,22 +38,15 @@ namespace BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists
                     try
                     {
                         var refreshedToken = await _spotifyService.RefreshTokenAsync(tokenModel.RefreshToken);
-                        refreshedToken.UserId = firebaseUid;
+                        refreshedToken.UserId = request.FirebaseUid;
                         refreshedToken.CreatedAt = tokenModel.CreatedAt;
 
-                        await _repository.UpdateSpotifyTokenAsync(firebaseUid, refreshedToken);
+                        await _repository.UpdateSpotifyTokenAsync(request.FirebaseUid, refreshedToken);
                         tokenModel = refreshedToken;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        return new GetSpotifyPlaylistsResponse
-                        {
-                            Header = new ViewModel.Common.HeaderViewModel
-                            {
-                                Code = "SPOTIFY_TOKEN_REFRESH_FAILED",
-                                Message = $"Failed to refresh Spotify token: {ex.Message}"
-                            }
-                        };
+                        throw;
                     }
                 }
 
@@ -63,27 +55,18 @@ namespace BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists
 
                 return new GetSpotifyPlaylistsResponse
                 {
-                    Header = new ViewModel.Common.HeaderViewModel
-                    {
-                        Code = "SUCCESS",
-                        Message = "Playlists retrieved successfully"
-                    },
+                    StatusCode = 200,
+                    Description = "SUCCESS",
+                    UserFriendly = "Playlists retrieved successfully",
                     Playlists = playlists,
                     Total = playlists.Count,
                     Limit = request.Limit,
                     Offset = request.Offset
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new GetSpotifyPlaylistsResponse
-                {
-                    Header = new ViewModel.Common.HeaderViewModel
-                    {
-                        Code = "SPOTIFY_API_ERROR",
-                        Message = $"Failed to retrieve playlists: {ex.Message}"
-                    }
-                };
+                throw;
             }
         }
     }
