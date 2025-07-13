@@ -8,6 +8,8 @@ using BackendSoulBeats.Infra.Application.V1.Services;
 using BackendSoulBeats.API.Configuration;
 using BackendSoulBeats.Domain.Application.V1.Repository;
 using BackendSoulBeats.Infra.Application.V1.Repository;
+using BackendSoulBeats.API.Application.V1.Command.PostSpotifyTokenExchange;
+using BackendSoulBeats.API.Application.V1.Query.GetSpotifyPlaylists;
 
 namespace BackendSoulBeats.API
 {
@@ -115,6 +117,8 @@ namespace BackendSoulBeats.API
         private void ConfigureServicesDependencies(IServiceCollection services)
         {
             services.AddSingleton<IGoogleAuthService, GoogleAuthService>();
+            services.AddHttpClient<ISpotifyService, SpotifyService>();
+            services.AddScoped<ISpotifyService, SpotifyService>();
         }
 
         /// <summary>
@@ -123,6 +127,10 @@ namespace BackendSoulBeats.API
         private void ConfigureRepositoryDependencies(IServiceCollection services)
         {
             services.AddScoped<ISoulBeatsRepository, SoulBeatsRepository>();
+            
+            // Registro de handlers para Spotify
+            services.AddScoped<PostSpotifyTokenExchangeHandler>();
+            services.AddScoped<GetSpotifyPlaylistsHandler>();
         }
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {

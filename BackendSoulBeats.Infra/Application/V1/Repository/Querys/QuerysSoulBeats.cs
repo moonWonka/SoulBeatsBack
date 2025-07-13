@@ -223,5 +223,63 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository.Querys
         internal const string DeleteUserArtistPreference = @"
             DELETE FROM UserArtistPreferences 
             WHERE FirebaseUid = @FirebaseUid AND ArtistId = @ArtistId";
+
+        // =============================================
+        // QUERIES PARA SPOTIFY INTEGRATION
+        // =============================================
+
+        /// <summary>
+        /// Inserta un nuevo token de Spotify para el usuario
+        /// </summary>
+        internal const string InsertSpotifyToken = @"
+            INSERT INTO SpotifyTokens (FirebaseUid, AccessToken, RefreshToken, ExpiresAt, TokenType, Scope, CreatedAt, UpdatedAt)
+            VALUES (@FirebaseUid, @AccessToken, @RefreshToken, @ExpiresAt, @TokenType, @Scope, GETDATE(), GETDATE())";
+
+        /// <summary>
+        /// Obtiene el token de Spotify del usuario
+        /// </summary>
+        internal const string GetSpotifyToken = @"
+            SELECT 
+                FirebaseUid as UserId, AccessToken, RefreshToken, 
+                ExpiresAt, TokenType, Scope, CreatedAt, UpdatedAt
+            FROM SpotifyTokens 
+            WHERE FirebaseUid = @FirebaseUid";
+
+        /// <summary>
+        /// Actualiza el token de Spotify del usuario
+        /// </summary>
+        internal const string UpdateSpotifyToken = @"
+            UPDATE SpotifyTokens 
+            SET AccessToken = @AccessToken, 
+                RefreshToken = @RefreshToken, 
+                ExpiresAt = @ExpiresAt, 
+                TokenType = @TokenType, 
+                Scope = @Scope, 
+                UpdatedAt = GETDATE()
+            WHERE FirebaseUid = @FirebaseUid";
+
+        /// <summary>
+        /// Inserta o actualiza un token de Spotify del usuario
+        /// </summary>
+        internal const string UpsertSpotifyToken = @"
+            MERGE SpotifyTokens AS target
+            USING (SELECT @FirebaseUid as FirebaseUid, @AccessToken as AccessToken, @RefreshToken as RefreshToken, 
+                          @ExpiresAt as ExpiresAt, @TokenType as TokenType, @Scope as Scope) AS source
+            ON (target.FirebaseUid = source.FirebaseUid)
+            WHEN MATCHED THEN
+                UPDATE SET AccessToken = source.AccessToken, RefreshToken = source.RefreshToken, 
+                          ExpiresAt = source.ExpiresAt, TokenType = source.TokenType, 
+                          Scope = source.Scope, UpdatedAt = GETDATE()
+            WHEN NOT MATCHED THEN
+                INSERT (FirebaseUid, AccessToken, RefreshToken, ExpiresAt, TokenType, Scope, CreatedAt, UpdatedAt)
+                VALUES (source.FirebaseUid, source.AccessToken, source.RefreshToken, source.ExpiresAt, 
+                       source.TokenType, source.Scope, GETDATE(), GETDATE());";
+
+        /// <summary>
+        /// Elimina el token de Spotify del usuario
+        /// </summary>
+        internal const string DeleteSpotifyToken = @"
+            DELETE FROM SpotifyTokens 
+            WHERE FirebaseUid = @FirebaseUid";
     }
 }
