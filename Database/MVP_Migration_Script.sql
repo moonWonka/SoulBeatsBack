@@ -1,10 +1,6 @@
--- =============================================
--- SoulBeats MVP Database Migration Script
--- Version: 1.0 - Clean structure with PK and FK
--- Description: Shows table structure with Primary Keys and Foreign Keys
--- =============================================
 
--- Eliminar tablas si existen (en orden correcto para respetar FK)
+
+
 DROP TABLE IF EXISTS SpotifyTokens;
 DROP TABLE IF EXISTS UserDiscoveryQueue;
 DROP TABLE IF EXISTS UserMatches;
@@ -15,6 +11,7 @@ DROP TABLE IF EXISTS Artistss;
 DROP TABLE IF EXISTS Genres;
 DROP TABLE IF EXISTS UserHistory;
 DROP TABLE IF EXISTS Users;
+
 
 -- Tabla de usuarios (base)
 CREATE TABLE Users (
@@ -91,7 +88,7 @@ CREATE TABLE UserArtistPreferences (
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_UserArtistPreferences_Users FOREIGN KEY (FirebaseUid) REFERENCES Users(FirebaseUid) ON DELETE CASCADE,
-    CONSTRAINT FK_UserArtistPreferences_Artists FOREIGN KEY (ArtistId) REFERENCES Artists(Id),
+    CONSTRAINT FK_UserArtistPreferences_Artists FOREIGN KEY (ArtistId) REFERENCES Artistss(Id),
     CONSTRAINT UQ_UserArtistPreferences_User_Artist UNIQUE (FirebaseUid, ArtistId)
 );
 

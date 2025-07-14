@@ -131,7 +131,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository.Querys
                 a.Id, a.Name, a.SpotifyId, a.ImageUrl, 
                 a.GenreId, g.Name as GenreName, 
                 a.Popularity, a.IsActive, a.CreatedAt
-            FROM Artists a
+            FROM Artistss a
             INNER JOIN Genres g ON a.GenreId = g.Id
             WHERE a.GenreId = @GenreId 
             AND a.IsActive = 1 
@@ -146,7 +146,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository.Querys
                 a.Id, a.Name, a.SpotifyId, a.ImageUrl, 
                 a.GenreId, g.Name as GenreName, 
                 a.Popularity, a.IsActive, a.CreatedAt
-            FROM Artists a
+            FROM Artistss a
             INNER JOIN Genres g ON a.GenreId = g.Id
             WHERE a.IsActive = 1 
             AND g.IsActive = 1
@@ -179,7 +179,7 @@ namespace BackendSoulBeats.Infra.Application.V1.Repository.Querys
                 a.Name as ArtistName, uap.PreferenceLevel, 
                 uap.CreatedAt, uap.UpdatedAt
             FROM UserArtistPreferences uap
-            INNER JOIN Artists a ON uap.ArtistId = a.Id
+            INNER JOIN Artistss a ON uap.ArtistId = a.Id
             WHERE uap.FirebaseUid = @FirebaseUid 
             AND a.IsActive = 1
             ORDER BY uap.PreferenceLevel DESC, a.Name";
